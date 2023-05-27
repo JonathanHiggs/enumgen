@@ -1,0 +1,63 @@
+cmake_minimum_required(VERSION 3.25)
+
+
+## CMake Options
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_INCLUDE_CURRENT_DIR OFF)
+set(ENABLE_DEVELOPER_MODE TRUE CACHE BOOL "Enable 'developer mode'")
+set(OPT_WARNINGS_AS_ERRROS_DEVELOPER_DEFAULT TRUE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+
+
+## Project
+file(READ "version.txt" CODEGEN_VERSION)
+
+project(
+    codegen
+    VERSION ${CODEGEN_VERSION}
+    DESCRIPTION "Code generator for C++"
+    HOMEPAGE_URL "https://github.com/JonathanHiggs/codegen"
+    LANGUAGES CXX
+)
+
+
+## Options
+option(CODEGEN_ENABLE_TESTS "Enable tests" OFF)
+
+
+## Build Options
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/bin)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
+
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/bin)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
+
+
+## CMake modules & package options
+list(APPEND CMAKE_MODULE_PATH
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+)
+
+
+include(platform)
+detect_platform()
+
+
+# enable_testing()
+
+
+## Dependencies
+find_package(nlohmann_json  CONFIG REQUIRED)
+find_package(inja           CONFIG REQUIRED)
+find_package(spdlog         CONFIG REQUIRED)
+
+
+
+## Projects
+add_subdirectory(projects)

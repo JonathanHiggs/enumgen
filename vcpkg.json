@@ -1,0 +1,9 @@
+{
+    "name": "cppcodegen",
+    "version": "0.0.1",
+    "dependencies": [
+        "inja",
+        "nlohmann-json",
+        "spdlog"
+    ]
+}
