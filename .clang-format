@@ -80,11 +80,8 @@ IncludeCategories:
 # # Headers in <> from specific library
 # - Regex: '<(fmt|gtest)\/'
 #   Priority: 5
-# Headers in <Haul> with extension
-- Regex: '<Haul/([a-zA-Z0-9.\Q/-_\E])+>'
-  Priority: 3
-# Headers in <Merlin> with extension
-- Regex: '<Merlin/([a-zA-Z0-9.\Q/-_\E])+>'
+# Headers in <codegen> with extension
+- Regex: '<codegen/([a-zA-Z0-9.\Q/-_\E])+>'
   Priority: 2
 # Headers in <> with extension
 - Regex: '<([a-zA-Z0-9.\Q/-_\E])+>'

@@ -1,0 +1,39 @@
+{
+    "outputPath": "../src/codegen",
+    "outputName": "Verbosity",
+    "headerPath": "codegen",
+    "enum": {
+        "description": "Represents the verbosity of logging output",
+        "namespace": "codegen::tests",
+        "className": "Verbosity",
+        "underlyingType": "int",
+        "default": "Normal",
+        "items": [
+            {
+                "name": "Quiet",
+                "value": 0,
+                "string": "Quite"
+            },
+            {
+                "name": "Minimal",
+                "value": 1,
+                "string": "Minimal"
+            },
+            {
+                "name": "Normal",
+                "value": 2,
+                "string": "Normal"
+            },
+            {
+                "name": "Detailed",
+                "value": 3,
+                "string": "Detailed"
+            },
+            {
+                "name": "Diagnostic",
+                "value": 4,
+                "string": "Diagnostic"
+            }
+        ]
+    }
+}

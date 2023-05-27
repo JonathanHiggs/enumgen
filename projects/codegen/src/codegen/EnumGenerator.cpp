@@ -1,57 +1,72 @@
 #include <codegen/EnumGenerator.h>
-
 #include <fmt/core.h>
 #include <fmt/printf.h>
+#include <fmt/std.h>
 #include <inja/inja.hpp>
 #include <nlohmann/json.hpp>
 
 #include <filesystem>
 
 
+using namespace std::filesystem;
+
+
 namespace codegen
 {
 
-    void EnumGenerator::Generate() const
+    void generateEnum(std::filesystem::path const & inputFile, Config const & config) noexcept
     {
         try
         {
-            auto workingPath = std::filesystem::current_path();
-            fmt::print("Current Path: {}\n", workingPath.string());
+            fmt::print("Input file:          {}\n", inputFile);
+            fmt::print("Config file:         {}\n", config.configFile);
+            fmt::print("Templates directory: {}\n", config.templatesDirectory);
 
             fmt::print("Initialize inja\n");
             auto env = inja::Environment();
             env.set_trim_blocks(true);
-            // env.set_lstrip_blocks(true);
 
-            auto inputFile = std::filesystem::absolute(workingPath / "data/enum.json").make_preferred();
-            fmt::print("Loading input data from:\n    {}\n", inputFile.string());
+            fmt::print("Loading input data from:\n    {}\n", inputFile);
             auto json = env.load_json(inputFile.string());
 
-            auto templatesPath = std::filesystem::absolute(workingPath / "templates").make_preferred();
-            auto headerTemplatePath = std::filesystem::absolute(templatesPath / "enum.h.inja").make_preferred();
-            auto codeTemplatePath = std::filesystem::absolute(templatesPath / "enum.cpp.inja").make_preferred();
 
-            auto outputPath = std::filesystem::path(json["outputPath"].get<std::string>());
+            auto outputDirectory = std::filesystem::absolute(inputFile.parent_path() / json["outputPath"].get<std::string>()).make_preferred();
+
+            if (!std::filesystem::exists(outputDirectory))
+            {
+                fmt::print("Creating output directory: {}\n", outputDirectory);
+                std::filesystem::create_directories(outputDirectory);
+            }
+
             auto outputName = json["outputName"].get<std::string>();
 
-            auto headerPath = std::filesystem::absolute(outputPath / fmt::format("{}.h", outputName)).make_preferred();
-            auto codePath = std::filesystem::absolute(outputPath / fmt::format("{}.cpp", outputName)).make_preferred();
+            auto headerPath
+                = std::filesystem::absolute(outputDirectory / fmt::format("{}.h", outputName)).make_preferred();
+            auto codePath
+                = std::filesystem::absolute(outputDirectory / fmt::format("{}.cpp", outputName)).make_preferred();
 
-            fmt::print("Writing output to:\n    {}\n    {}\n", headerPath.string(), codePath.string());
+            fmt::print(
+                "Generating header for {}\n    from: {}\n    to:   {}\n",
+                json["enum"]["className"],
+                config.enumConfig.headerTemplateFile,
+                headerPath);
 
-            fmt::print("Generating header\n");
-            env.write(headerTemplatePath.string(), json, headerPath.string());
+            env.write(config.enumConfig.headerTemplateFile.string(), json, headerPath.string());
 
-            fmt::print("Generating code\n");
-            env.write(codeTemplatePath.string(), json, codePath.string());
+            fmt::print(
+                "Generating code for {}\n    from: {}\n    to:   {}\n",
+                json["enum"]["className"],
+                config.enumConfig.codeTemplateFile,
+                codePath);
+
+            env.write(config.enumConfig.codeTemplateFile.string(), json, codePath.string());
 
             fmt::print("Templates generated\n");
         }
-        catch (std::exception const& ex)
+        catch (std::exception const & ex)
         {
-            fmt::print("Error: {}\n", ex.what());
-            // throw;
+            fmt::print("Error generating enums:\n    {}\n", ex.what());
         }
     }
 
-}
+}  // namespace codegen

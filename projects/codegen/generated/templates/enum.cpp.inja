@@ -50,9 +50,11 @@ namespace {{ enum.namespace }}
     {
 {% for item in enum.items %}
         if (str == "{{ item.string }}"sv) return +{{ enum.className }}::{{ item.name }};
+{% if existsIn(item, "alts") %}
 {% for alt in item.alts %}
         if (str == "{{ alt }}"sv) return +{{ enum.className }}::{{ item.name }};
 {% endfor %}
+{% endif %}
 {% endfor %}
 
         return std::nullopt;
