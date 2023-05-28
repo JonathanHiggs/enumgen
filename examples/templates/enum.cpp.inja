@@ -1,0 +1,81 @@
+// clang-format off
+/* Generated code, any modifications will be overwritten */
+
+#include <{{ enum.includePath }}/{{ enum.name }}.h>
+
+#include <fmt/core.h>
+
+
+using namespace std::string_view_literals;
+
+
+namespace {{ enum.namespace }}
+{
+
+    {{ enum.name }}::{{ enum.name }}(std::string_view str) : value(Parse(str))
+    { }
+
+    std::array<{{ enum.name }}, {{ length(enum.items) }}ul> const & {{ enum.name }}::Values() noexcept
+    {
+        static constexpr std::array<{{ enum.name }}, {{ length(enum.items) }}ul> values = {
+{% for item in enum.items %}
+            +{{ enum.name }}::{{ item.name }}{% if not loop.is_last %},{% endif %}
+
+{% endfor %}
+        };
+
+        return values;
+    }
+
+    std::string_view {{ enum.name }}::ToString() const noexcept
+    {
+        switch (value)
+        {
+{% for item in enum.items %}
+        case {{ item.name }}: return "{{ item.name }}"sv;
+{% endfor %}
+        }
+
+        return "Unknown"sv;
+    }
+
+    {{ enum.name }} {{ enum.name }}::Parse(std::string_view str)
+    {
+        auto result = TryParse(str);
+        if (!result)
+        {
+            throw std::exception(fmt::format(
+                "Unable to parse {{ enum.namespace }}::{{ enum.name }} from '{}'    {} ln{}",
+                str,
+                __FILE__,
+                __LINE__).c_str());
+        }
+
+        return result.value();
+    }
+
+    std::optional<{{ enum.name }}> {{ enum.name }}::TryParse(std::string_view str)
+    {
+{% for item in enum.items %}
+{% if existsIn(item, "alts") %}
+{% if not loop.is_first %}
+
+{% endif %}
+        // Alternatives for {{ item.name }}:
+{% endif %}
+        if (str == "{{ item.string }}"sv) return +{{ enum.name }}::{{ item.name }};
+{% if existsIn(item, "alts") %}
+{% for alt in item.alts %}
+        if (str == "{{ alt }}"sv) return +{{ enum.name }}::{{ item.name }};
+{% endfor %}
+{% if existsIn(item, "alts") %}
+
+{% endif %}
+{% endif %}
+{% endfor %}
+
+        return std::nullopt;
+    }
+
+} // namespace {{ enum.namespace }}
+// clang-format on

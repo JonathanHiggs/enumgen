@@ -1,0 +1,58 @@
+{
+  "headerRoot": "../include",
+  "codeRoot": "../src",
+  "enums": [
+    {
+      "name": "Verbosity",
+      "description": "Represents the verbosity of logging output",
+      "headerPath": "./myproject",
+      "codePath": "./myproject",
+      "includePath": "myproject",
+      "namespace": "myproject",
+      "underlyingType": "int",
+      "default": "Normal",
+      "items": [
+        {
+          "name": "Quiet",
+          "value": 0,
+          "string": "Quite",
+          "alts": [ "quite", "QUITE" ]
+        },
+        {
+          "name": "Minimal",
+          "value": 1,
+          "string": "Minimal"
+        },
+        {
+          "name": "Normal",
+          "value": 2,
+          "string": "Normal",
+          "alts": [ "NORMAL", "normal" ]
+        },
+        {
+          "name": "Detailed",
+          "value": 3,
+          "string": "Detailed"
+        },
+        {
+          "name": "Diagnostic",
+          "value": 4,
+          "string": "Diagnostic"
+        }
+      ]
+    },
+    {
+      "name": "MyEnum",
+      "headerPath": "./myproject/enums",
+      "codePath": "./myproject/enums",
+      "includePath": "myproject/enums",
+      "namespace": "myproject::enums",
+      "items": [
+        {
+          "name": "Value1",
+          "string": "value"
+        }
+      ]
+    }
+  ]
+}

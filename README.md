@@ -157,3 +157,5 @@ std::ostream & operator<<(std::ostream & os, {{ enum.name }} value)
 
 } // namespace {{ enum.namespace }}
 ```
+
+More examples are available in the [examples](examples) directory
