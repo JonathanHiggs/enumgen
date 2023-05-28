@@ -1,7 +1,0 @@
-{
-    "templates": "./templates",
-    "enums": {
-        "headerTemplate": "enum.h.inja",
-        "codeTemplate": "enum.cpp.inja"
-    }
-}

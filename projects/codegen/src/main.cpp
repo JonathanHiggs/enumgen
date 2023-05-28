@@ -33,7 +33,15 @@ int main(int argc, char** argv, int envc, char** envv)
         return -1;
     }
 
-    codegen::generateEnum(inputFile, *config);
+    try
+    {
+        codegen::generateEnums(inputFile, *config);
+    }
+    catch (const std::exception& e)
+    {
+        fmt::print("Error: {}\n", e.what());
+        return -1;
+    }
 
     return 0;
 }
