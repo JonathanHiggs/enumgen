@@ -8,7 +8,6 @@
 ## Enums
 
 - Optional test generation
-- [maybe] add top-level 'pathsRoot'
 - [maybe] Header only enums
 
 ## CMake integration
