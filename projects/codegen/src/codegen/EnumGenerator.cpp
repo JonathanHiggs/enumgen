@@ -23,14 +23,19 @@ namespace codegen
     namespace
     {
 
+        static constexpr std::string_view headerRootField = "headerRoot"sv;
+        static constexpr std::string_view codeRootField = "codeRoot"sv;
         static constexpr std::string_view enumsField = "enums"sv;
+
         static constexpr std::string_view nameField = "name"sv;
         static constexpr std::string_view descriptionField = "description"sv;
-        static constexpr std::string_view outputPathField = "outputPath"sv;
         static constexpr std::string_view headerPathField = "headerPath"sv;
+        static constexpr std::string_view codePathField = "codePath"sv;
+        static constexpr std::string_view includePathField = "includePath"sv;
         static constexpr std::string_view namespaceField = "namespace"sv;
         static constexpr std::string_view underlyingTypeField = "underlyingType"sv;
         static constexpr std::string_view defaultField = "default"sv;
+
         static constexpr std::string_view itemsArray = "items"sv;
         static constexpr std::string_view itemNameField = "name"sv;
         static constexpr std::string_view itemValueField = "value"sv;
@@ -180,7 +185,7 @@ namespace codegen
 
             auto name = node[nameField].get<std::string_view>();
 
-            constexpr auto requiredFields = std::array{ outputPathField, headerPathField, namespaceField };
+            constexpr auto requiredFields = std::array{ headerPathField, codePathField, includePathField, namespaceField };
 
             for (auto const & field : requiredFields)
             {
@@ -254,34 +259,53 @@ namespace codegen
             return errors;
         }
 
-        path prepareOutputDirectory(path const & root, json const & description)
+        path resolveHeaderFile(path const & root, json const & inputData, json const & description, std::string_view name)
         {
-            auto result = absolute(root / description["outputPath"].get<std::string>()).make_preferred();
-            if (!exists(result))
+            auto directory = [&]() {
+                if (inputData.contains(headerRootField))
+                {
+                    return root / inputData[headerRootField].get<std::string>() / description[headerPathField].get<std::string>();
+                }
+
+                    return root / description[headerPathField].get<std::string>();
+            }();
+
+            directory = absolute(std::move(directory)).make_preferred();
+
+            if (!exists(directory))
             {
-                fmt::print("Creating output directory: {}\n", result);
-                create_directories(result);
+                create_directories(directory);
             }
 
-            return result;
+            return directory/ fmt::format("{}.h", name);
         }
 
-        path prepareHeaderFile(path const & outputDirectory, std::string_view name)
+        path resolveCodeFile(path const & root, json const & inputData, json const & description, std::string_view name)
         {
-            return outputDirectory / fmt::format("{}.h", name);
+            auto directory = [&]() {
+                if (inputData.contains(codeRootField))
+                {
+                    return root / inputData[codeRootField].get<std::string>() / description[codePathField].get<std::string>();
+                }
+
+                return root  / description[codePathField].get<std::string>();
+            }();
+
+            directory = absolute(std::move(directory)).make_preferred();
+
+            if (!exists(directory))
+            {
+                create_directories(directory);
+            }
+
+            return directory / fmt::format("{}.cpp", name);
         }
 
-        path prepareCodeFile(path const & outputDirectory, std::string_view name)
+        bool generateEnum(path const & root, inja::Environment & env, json const & inputData, json const & description, Config const & config)
         {
-            return outputDirectory / fmt::format("{}.cpp", name);
-        }
-
-        bool generateEnum(path const & root, inja::Environment & env, json const & description, Config const & config)
-        {
-            auto name = description["name"].get<std::string_view>();
-            auto outputDirectory = prepareOutputDirectory(root, description);
-            auto headerFile = prepareHeaderFile(outputDirectory, name);
-            auto codeFile = prepareCodeFile(outputDirectory, name);
+            auto name = description[nameField].get<std::string_view>();
+            auto headerFile = resolveHeaderFile(root, inputData, description, name);
+            auto codeFile = resolveCodeFile(root, inputData, description, name);
 
             json renderData;
             renderData["enum"] = description;
@@ -346,9 +370,9 @@ namespace codegen
         }
 
         auto root = inputFile.parent_path();
-        for (auto const & description : inputData["enums"sv])
+        for (auto const & description : inputData[enumsField])
         {
-            generateEnum(root, env, description, config);
+            generateEnum(root, env, inputData, description, config);
         }
 
         fmt::print("Templates generated\n");
