@@ -24,6 +24,7 @@ project(
 
 
 ## Options
+option(ENUMGEN_PACKAGE_BUILD "Configure package build" OFF)
 option(ENUMGEN_ENABLE_TESTS "Enable tests" OFF)
 
 

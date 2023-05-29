@@ -1,4 +1,4 @@
-#include <enumgen/Config.h>
+#include <enumgen/Config.hpp>
 
 #include <fmt/printf.h>
 #include <fmt/std.h>

@@ -1,4 +1,4 @@
-#include <enumgen/Enums.h>
+#include <enumgen/Enums.hpp>
 
 #include <fmt/core.h>
 #include <fmt/format.h>

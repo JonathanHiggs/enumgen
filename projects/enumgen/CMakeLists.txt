@@ -5,6 +5,13 @@ set_target_properties(enumgen PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON)
 
+set(ENUMGEN_VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/include/enumgen/Version.hpp")
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/templates/Version.hpp.in"
+    ${ENUMGEN_VERSION_HEADER}
+)
+
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
@@ -41,8 +48,12 @@ else()
 endif()
 
 
-target_include_directories(enumgen PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+target_include_directories(enumgen
+    PUBLIC
+    $<INSTALL_INTERFACE:include>
+    PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 )
 
 target_link_libraries(enumgen PRIVATE
@@ -60,25 +71,44 @@ install(
 )
 
 install(
+    FILES ${ENUMGEN_VERSION_HEADER}
+    DESTINATION include/enumgen
+)
+
+install(
     EXPORT enumgen_target
     NAMESPACE enumgen::
     FILE enumgen-config.cmake
     DESTINATION share/enumgen
 )
 
-if (NOT DEFINED VCPKG_TARGET_TRIPLET AND NOT DEFINED CONAN_EXPORT)
-    # Need to manually copy over the fmt library if we're not using vcpkg or conan
+if (NOT ENUMGEN_PACKAGE_BUILD)
+    # Need to manually copy over the dlls if we're not using vcpkg or conan
 
-    find_library(FMT_LIBRARY_PATH NAMES fmtd PATHS ${fmt_DIR}/lib)
-
-    if (FMT_LIBRARY_PATH)
-        message("Found fmt library: ${FMT_LIBRARY_PATH}")
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        set(ENUMGEN_FMT_LIBRARY "fmtd.dll")
+        set(ENUMGEN_SPDLOG_LIBRARY "spdlogd.dll")
+        set(ENUMGEN_LIBRARY_SEARCH_PATH ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin)
     else()
-        message(FATAL_ERROR "Could not find fmt library")
+        set(ENUMGEN_FMT_LIBRARY "fmt.dll")
+        set(ENUMGEN_SPDLOG_LIBRARY "spdlog.dll")
+        set(ENUMGEN_LIBRARY_SEARCH_PATH ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin)
     endif()
 
+    find_file(ENUMGEN_FMT_LIBRARY_PATH
+        NAMES ${ENUMGEN_FMT_LIBRARY}
+        PATHS ${ENUMGEN_LIBRARY_SEARCH_PATH}
+        REQUIRED
+    )
+
+    find_file(ENUMGEN_SPDLOG_LIBRARY_PATH
+        NAMES ${ENUMGEN_SPDLOG_LIBRARY}
+        PATHS ${ENUMGEN_LIBRARY_SEARCH_PATH}
+        REQUIRED
+    )
+
     install(
-        FILES ${FMT_LIBRARY_PATH}
+        FILES ${ENUMGEN_FMT_LIBRARY_PATH} ${ENUMGEN_SPDLOG_LIBRARY_PATH}
         DESTINATION tools/enumgen
     )
 endif()

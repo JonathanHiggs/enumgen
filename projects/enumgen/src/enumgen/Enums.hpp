@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enumgen/Config.h>
+#include <enumgen/Config.hpp>
 
 #include <filesystem>
 #include <string_view>

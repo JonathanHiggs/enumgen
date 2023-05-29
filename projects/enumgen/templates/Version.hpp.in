@@ -1,0 +1,14 @@
+#pragma once
+
+#include <string_view>
+
+
+using namespace std::string_view_literals;
+
+
+namespace enumgen
+{
+
+constexpr std::string_view Version = "${ENUMGEN_VERSION}"sv;
+
+} // namespace enumgen

@@ -1,5 +1,6 @@
-#include <enumgen/Config.h>
-#include <enumgen/Enums.h>
+#include <enumgen/Config.hpp>
+#include <enumgen/Enums.hpp>
+#include <enumgen/Version.hpp>
 
 #include <fmt/printf.h>
 #include <fmt/std.h>
@@ -11,17 +12,11 @@ void showUsage()
 }
 
 
-int main(int argc, char** argv, int envc, char** envv)
+int generate(int argc, char ** argv)
 {
-    if (!(argc == 4))
-    {
-        showUsage();
-        return 0;
-    }
-
-    auto inputFile = std::string_view(argv[1], std::strlen(argv[1]));
-    auto configFile = std::string_view(argv[2], std::strlen(argv[2]));
-    auto outputPath = std::string_view(argv[3], std::strlen(argv[3]));
+    auto inputFile = std::string_view(argv[1ul], std::strlen(argv[1ul]));
+    auto configFile = std::string_view(argv[2ul], std::strlen(argv[2ul]));
+    auto outputPath = std::string_view(argv[3ul], std::strlen(argv[3ul]));
 
     try
     {
@@ -31,11 +26,33 @@ int main(int argc, char** argv, int envc, char** envv)
             return -1;
         }
     }
-    catch (const std::exception& e)
+    catch (const std::exception & e)
     {
         fmt::print("Error: {}\n", e.what());
         return -1;
     }
 
+    return 0;
+}
+
+
+int main(int argc, char ** argv, int envc, char ** envv)
+{
+    if (argc == 2)
+    {
+        auto arg = std::string_view(argv[1ul], std::strlen(argv[1ul]));
+        if (arg == "version"sv || arg == "-v"sv || arg == "--version"sv)
+        {
+            fmt::print("enumgen version: {}\n", enumgen::Version);
+            return 0;
+        }
+    }
+
+    if (argc == 4)
+    {
+        return generate(argc, argv);
+    }
+
+    showUsage();
     return 0;
 }
