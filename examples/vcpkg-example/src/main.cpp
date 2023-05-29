@@ -12,6 +12,8 @@ using namespace std::string_view_literals;
 
 int main()
 {
+    std::cout << "enumgen example\n\n";
+
     std::cout << "Verbosity Values:\n";
 
     for (auto const & verbosity : Verbosity::Values())

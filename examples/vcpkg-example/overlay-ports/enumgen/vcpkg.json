@@ -1,0 +1,21 @@
+{
+  "name": "enumgen",
+  "version": "0.0.1",
+  "description": "c++ enum code gen tool",
+  "homepage": "https://github.com/JonathanHiggs/enumgen",
+  "license": null,
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    },
+    "fmt",
+    "inja",
+    "nlohmann-json",
+    "spdlog"
+  ]
+}

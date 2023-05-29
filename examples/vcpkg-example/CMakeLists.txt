@@ -1,22 +1,16 @@
 cmake_minimum_required(VERSION 3.25)
 
 project(
-    enumgen_example
+    vcpkg-vcpkg-example
     LANGUAGES CXX
 )
 
-## Add enumgen locally - expects enumgen to be in the same directory as this project- usually a package manager would
-## take care of this
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../out/install/${ENUMGEN_CURRENT_PRESET}/share/enumgen")
-set(enumgen_DIR "${CMAKE_SOURCE_DIR}/../out/install/${ENUMGEN_CURRENT_PRESET}/share/enumgen")
-
+# find_package auto-includes the enumgen function: `enumgen_generate`
 find_package(enumgen REQUIRED)
 
-include(enumgen)
+add_executable(vcpkg-example)
 
-add_executable(example)
-
-set_target_properties(example PROPERTIES
+set_target_properties(vcpkg-example PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON)
 
@@ -33,12 +27,12 @@ file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_BINARY_DIR}/src/*.cpp"
 )
 
-target_sources(example PRIVATE ${SOURCE_FILES})
+target_sources(vcpkg-example PRIVATE ${SOURCE_FILES})
 
-target_compile_options(example PRIVATE
+target_compile_options(vcpkg-example PRIVATE
     "/std:c++20"                    # c++ standard
 )
 
-target_include_directories(example PUBLIC
+target_include_directories(vcpkg-example PUBLIC
     "${CMAKE_CURRENT_BINARY_DIR}/include"
 )

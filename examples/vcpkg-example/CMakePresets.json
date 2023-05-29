@@ -7,7 +7,10 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "ENUMGEN_CURRENT_PRESET": "${presetName}"
+        "CMAKE_TOOLCHAIN_FILE": {
+          "value": "$env{VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake",
+          "type": "FILEPATH"
+        }
       }
     },
     {

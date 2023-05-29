@@ -1,0 +1,7 @@
+{
+  "name": "vcpkg-example",
+  "version": "0",
+  "dependencies": [
+    "enumgen"
+  ]
+}
