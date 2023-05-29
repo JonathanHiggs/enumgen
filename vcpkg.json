@@ -1,9 +1,10 @@
 {
-    "name": "enumgen",
-    "version": "0.0.1",
-    "dependencies": [
-        "inja",
-        "nlohmann-json",
-        "spdlog"
-    ]
+  "name": "enumgen",
+  "version": "0.0.1",
+  "dependencies": [
+    "fmt",
+    "inja",
+    "nlohmann-json",
+    "spdlog"
+  ]
 }

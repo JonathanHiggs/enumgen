@@ -1,4 +1,5 @@
 add_executable(enumgen)
+add_executable(enumgen::enumgen ALIAS enumgen)
 
 set_target_properties(enumgen PROPERTIES
     CXX_STANDARD 20
@@ -40,12 +41,28 @@ else()
 endif()
 
 
-target_include_directories(enumgen PUBLIC
+target_include_directories(enumgen PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
-target_link_libraries(enumgen PUBLIC
+target_link_libraries(enumgen PRIVATE
+    fmt::fmt
     pantor::inja
     nlohmann_json::nlohmann_json
     spdlog::spdlog
+)
+
+
+install(
+    TARGETS enumgen
+    EXPORT enumgen_target
+    CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES}
+    RUNTIME DESTINATION ${ENUMGEN_INSTALL_TOOLS_DIR}/${PROJECT_NAME}
+)
+
+install(
+    EXPORT enumgen_target
+    NAMESPACE enumgen::
+    FILE enumgen-config.cmake
+    DESTINATION share/enumgen
 )
