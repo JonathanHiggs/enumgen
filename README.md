@@ -1,15 +1,83 @@
-﻿# EnumGen
+﻿# enumgen
 
-Small c++ code generator utility
+c++ enum code generator utility
 
-## Usage
+## Motivation
 
-Call from the command line with a specification file containing definitions of enums to be generated with a config file
+Enums in c++ are a bit of a pain, the language provides minimal support for expected features such are iterating over
+all values or converting to/from strings. The options are to either write a bunch of boilerplate code, use a lot of 
+expensive compile-time templates or reflection, or live without useful features
+
+This project aims to provide a simple way to generate enums at configure-time with the specific features you need by 
+only writing some specification and templates
+
+## Work-in-progress
+
+Note: I've spent a total of less than 3 days on this project, so it is still in the early stages of development and is
+not yet ready for use
+
+## Getting Started
+
+`enumgen` (will) be a build tool that can be used from cmake at configure-time to generate all the enums you need
+
+It will be installed from vcpkg via command-line or manifest file
+
+```bash
+$ vcpkg install enumgen
+```
+
+```json
+{
+  "name": "myproject",
+  "version": "0.0.1",
+  "dependencies": [
+    "enumgen"
+  ]
+}
+```
+
+Once installed it will be used in CMakeLists.txt to generate the enums
+
+```cmake
+find_package(enumgen REQUIRED)
+
+add_library(mylibrary)
+
+enumgen_generate(
+    ${CMAKE_CURRENT_SOURCE_DIR}/enumgen/enums.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/enumgen/config.json
+)
+
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/src/*.cpp
+)
+
+target_sources(mylibrary PRIVATE ${SOURCE_FILES})
+
+target_include_directories(mylibrary PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
+)
+```
+
+See [CMake Integration](#cmake-integration) or [vcpkg-example](examples/vcpkg-example/README.md) for more details
+
+### Command Line
+
+Under the hood `enumgen` is a command-line tool that takes a specification file, a config file, and an output path
 
 ```bash
 $ enumgen <specification file> <config file> <output path>
 $ enumgen enums.json config.json ./path/to/output
 ```
+
+## Building
+
+The current build depends on [vcpkg](https://vcpkg.io/en/), a `VCPKG_ROOT` env variable that points to the vcpkg repo
+and cmake. Otherwise it should build with any modern compiler, but is only testing with windows and msvc
+
+## Usage
 
 ### Specification file
 
@@ -159,7 +227,7 @@ std::ostream & operator<<(std::ostream & os, {{ enum.name }} value)
 } // namespace {{ enum.namespace }}
 ```
 
-More examples are available in the [examples](examples) directory
+More examples are available in the [examples](examples/vcpkg-example) directory
 
 ### CMake Integration
 
@@ -193,8 +261,6 @@ files are output to `${CMAKE_CURRENT_BINARY_DIR}` to not pollute the source dire
 other source files, and the headers path can be added to the include directories
 
 ```cmake
-include(enumgen)
-
 add_library(mylibrary)
 
 enumgen_generate(
