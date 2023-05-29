@@ -38,8 +38,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
 
-set(ENUMGEN_INSTALL_TOOLS_DIR tools CACHE PATH "enumgen install directory")
-
 
 ## CMake modules & package options
 list(APPEND CMAKE_MODULE_PATH
@@ -55,11 +53,12 @@ detect_platform()
 
 
 ## Dependencies
+find_package(fmt            CONFIG REQUIRED)
 find_package(nlohmann_json  CONFIG REQUIRED)
 find_package(inja           CONFIG REQUIRED)
 find_package(spdlog         CONFIG REQUIRED)
 
 
-
 ## Projects
+add_subdirectory(cmake)
 add_subdirectory(projects)

@@ -1,9 +1,9 @@
 #include <enumgen/Enums.h>
 
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <fmt/printf.h>
 #include <fmt/std.h>
-#include <fmt/format.h>
 #include <inja/inja.hpp>
 #include <nlohmann/json.hpp>
 
@@ -61,7 +61,8 @@ namespace enumgen
         {
             if (!node.contains(field))
             {
-                errors.emplace_back(fmt::vformat(missingMessage, fmt::make_format_args("name"_a = name, "field"_a = field)));
+                errors.emplace_back(
+                    fmt::vformat(missingMessage, fmt::make_format_args("name"_a = name, "field"_a = field)));
                 return false;
             }
 
@@ -70,7 +71,9 @@ namespace enumgen
             {
                 if (!requirement.check(value))
                 {
-                    errors.emplace_back(fmt::vformat(requirement.errorMessage, fmt::make_format_args("name"_a = name, "field"_a = field)));
+                    errors.emplace_back(fmt::vformat(
+                        requirement.errorMessage,
+                        fmt::make_format_args("name"_a = name, "field"_a = field)));
                     return false;
                 }
             }
@@ -96,7 +99,9 @@ namespace enumgen
             {
                 if (!requirement.check(value))
                 {
-                    errors.emplace_back(fmt::vformat(requirement.errorMessage, fmt::make_format_args("name"_a = name, "field"_a = field)));
+                    errors.emplace_back(fmt::vformat(
+                        requirement.errorMessage,
+                        fmt::make_format_args("name"_a = name, "field"_a = field)));
                     success = false;
                 }
             }
@@ -154,16 +159,16 @@ namespace enumgen
                 node,
                 name,
                 itemValueField,
-                requirements{ requirement{ &json::is_number_integer, "Enum item '{name}::{field}' has non-int value" } },
+                requirements{
+                    requirement{ &json::is_number_integer, "Enum item '{name}::{field}' has non-int value" } },
                 errors);
 
             optional(
                 node,
                 name,
                 itemAltsArray,
-                requirements{
-                    requirement{ &json::is_array, "Enum item '{name}::{field}' has non-array value" },
-                    requirement{ allItemsStrings, "Enum item '{name}::{field}' has non-string values" } },
+                requirements{ requirement{ &json::is_array, "Enum item '{name}::{field}' has non-array value" },
+                              requirement{ allItemsStrings, "Enum item '{name}::{field}' has non-string values" } },
                 errors);
         }
 
@@ -185,7 +190,8 @@ namespace enumgen
 
             auto name = node[nameField].get<std::string_view>();
 
-            constexpr auto requiredFields = std::array{ headerPathField, codePathField, includePathField, namespaceField };
+            constexpr auto requiredFields
+                = std::array{ headerPathField, codePathField, includePathField, namespaceField };
 
             for (auto const & field : requiredFields)
             {
@@ -259,15 +265,17 @@ namespace enumgen
             return errors;
         }
 
-        path resolveHeaderFile(path const & root, json const & inputData, json const & description, std::string_view name)
+        path resolveHeaderFile(
+            path const & root, json const & inputData, json const & description, std::string_view name)
         {
             auto directory = [&]() {
                 if (inputData.contains(headerRootField))
                 {
-                    return root / inputData[headerRootField].get<std::string>() / description[headerPathField].get<std::string>();
+                    return root / inputData[headerRootField].get<std::string>()
+                           / description[headerPathField].get<std::string>();
                 }
 
-                    return root / description[headerPathField].get<std::string>();
+                return root / description[headerPathField].get<std::string>();
             }();
 
             directory = absolute(std::move(directory)).make_preferred();
@@ -277,7 +285,7 @@ namespace enumgen
                 create_directories(directory);
             }
 
-            return directory/ fmt::format("{}.h", name);
+            return directory / fmt::format("{}.h", name);
         }
 
         path resolveCodeFile(path const & root, json const & inputData, json const & description, std::string_view name)
@@ -285,10 +293,11 @@ namespace enumgen
             auto directory = [&]() {
                 if (inputData.contains(codeRootField))
                 {
-                    return root / inputData[codeRootField].get<std::string>() / description[codePathField].get<std::string>();
+                    return root / inputData[codeRootField].get<std::string>()
+                           / description[codePathField].get<std::string>();
                 }
 
-                return root  / description[codePathField].get<std::string>();
+                return root / description[codePathField].get<std::string>();
             }();
 
             directory = absolute(std::move(directory)).make_preferred();
@@ -301,7 +310,12 @@ namespace enumgen
             return directory / fmt::format("{}.cpp", name);
         }
 
-        bool generateEnum(path const & root, inja::Environment & env, json const & inputData, json const & description, Config const & config)
+        bool generateEnum(
+            path const & root,
+            inja::Environment & env,
+            json const & inputData,
+            json const & description,
+            Config const & config)
         {
             auto name = description[nameField].get<std::string_view>();
             auto headerFile = resolveHeaderFile(root, inputData, description, name);
@@ -342,13 +356,50 @@ namespace enumgen
             }
         }
 
+        path resolveInputFile(std::string_view inputFile)
+        {
+            auto result = absolute(path(inputFile)).make_preferred();
+
+            if (!exists(result))
+            {
+                throw std::runtime_error(fmt::format("Input file '{}' does not exist", result));
+            }
+
+            return result;
+        }
+
+        path resolveConfigFile(std::string_view configFile)
+        {
+            auto result = absolute(path(configFile)).make_preferred();
+
+            if (!exists(result))
+            {
+                throw std::runtime_error(fmt::format("Config file '{}' does not exist", result));
+            }
+
+            return result;
+        }
+
+        path resolveOutputPath(std::string_view outputPath)
+        {
+            auto result = absolute(path(outputPath)).make_preferred();
+
+            if (!exists(result))
+            {
+                create_directories(result);
+            }
+
+            return result;
+        }
+
     }  // namespace
 
-    void generateEnums(path const & inputFile, Config const & config) noexcept
+    bool generateEnums(path const & inputFile, std::filesystem::path const & outputRoot, Config const & config) noexcept
     {
         fmt::print("Input file:          {}\n", inputFile);
         fmt::print("Config file:         {}\n", config.configFile);
         fmt::print("Templates directory: {}\n", config.templatesDirectory);
+        fmt::print("Output directory:    {}\n", outputRoot);
 
         fmt::print("Initialize inja\n");
         auto env = inja::Environment();
@@ -366,16 +417,34 @@ namespace enumgen
                 fmt::print("    {}\n", error);
             }
 
-            return;
+            return false;
         }
 
-        auto root = inputFile.parent_path();
         for (auto const & description : inputData[enumsField])
         {
-            generateEnum(root, env, inputData, description, config);
+            generateEnum(outputRoot, env, inputData, description, config);
         }
 
         fmt::print("Templates generated\n");
+
+        return true;
+    }
+
+    bool generateEnums(std::string_view inputFile, std::string_view configFile, std::string_view outputPath) noexcept
+    {
+        auto input = resolveInputFile(inputFile);
+        auto configPath = resolveConfigFile(configFile);
+
+        auto config = tryReadConfig(configPath);
+        if (!config || !validateConfig(*config))
+        {
+            fmt::print("Invalid config\n");
+            return false;
+        }
+
+        auto output = resolveOutputPath(outputPath);
+
+        return generateEnums(input, output, *config);
     }
 
 }  // namespace enumgen

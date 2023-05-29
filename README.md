@@ -1,4 +1,4 @@
-# EnumGen
+﻿# EnumGen
 
 Small c++ code generator utility
 
@@ -7,7 +7,8 @@ Small c++ code generator utility
 Call from the command line with a specification file containing definitions of enums to be generated with a config file
 
 ```bash
-$ enumgen enums.eg.json enumgen.config.json
+$ enumgen <specification file> <config file> <output path>
+$ enumgen enums.json config.json ./path/to/output
 ```
 
 ### Specification file
@@ -16,8 +17,8 @@ The specification file contains the definitions of all enums to be generated
 
 ```json
 {
-  "headerRoot": "../include",
-  "codeRoot": "../src",
+  "headerRoot": "./include",
+  "codeRoot": "./src",
   "enums": [
     {
       "name": "Verbosity",
@@ -86,7 +87,7 @@ The specification file contains the definitions of all enums to be generated
 * `string` - String representation of the enum item
 * `alts` - [optional] List of alternative string representations of the enum item
 
-Note: All paths are resolved relative to the directory containing the specification file
+Note: The output location of files will resolve from <outputPath>
 
 ### Config File
 
@@ -159,3 +160,61 @@ std::ostream & operator<<(std::ostream & os, {{ enum.name }} value)
 ```
 
 More examples are available in the [examples](examples) directory
+
+### CMake Integration
+
+EnumGen can be integrated into a CMake project using the [enumgen.cmake](cmake/enumgen-functions.cmake) module. First
+add the package to the project
+
+```cmake
+find_package(enumgen REQUIRED)
+```
+
+Add a config, enums specification and templates along side the other source files. It is recommended to not put the
+enumgen files in a `/src` directory but along side the other source files
+
+```
+library
+├── enumgen
+│   ├── templates
+│   │   ├── enum.cpp.inja
+│   │   ├── enum.h.inja
+│   ├── config.json
+│   ├── enums.json
+├── include
+│   ├── <header files>
+├── src
+│   ├── <source files>
+├── CMakeLists.txt
+```
+
+In `CMakeLists.txt` include the `enumgen` module and call `enumgen_generate` for each enum specification. Generated 
+files are output to `${CMAKE_CURRENT_BINARY_DIR}` to not pollute the source directory. They can then be globbed with
+other source files, and the headers path can be added to the include directories
+
+```cmake
+include(enumgen)
+
+add_library(mylibrary)
+
+enumgen_generate(
+    ${CMAKE_CURRENT_SOURCE_DIR}/enumgen/enums.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/enumgen/config.json
+)
+
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/src/*.cpp
+)
+
+target_sources(mylibrary PRIVATE ${SOURCE_FILES})
+
+target_include_directories(mylibrary PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
+)
+```
+
+Enum files are generated at configure time, this means that any changes to the specification or templates will not be
+detected until the next configure. Additionally if an enum is removed from the specification it will not be removed, so
+the output directory should be cleaned if this is required

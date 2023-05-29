@@ -56,8 +56,7 @@ target_link_libraries(enumgen PRIVATE
 install(
     TARGETS enumgen
     EXPORT enumgen_target
-    CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES}
-    RUNTIME DESTINATION ${ENUMGEN_INSTALL_TOOLS_DIR}/${PROJECT_NAME}
+    RUNTIME DESTINATION tools/enumgen
 )
 
 install(
@@ -66,3 +65,20 @@ install(
     FILE enumgen-config.cmake
     DESTINATION share/enumgen
 )
+
+if (NOT DEFINED VCPKG_TARGET_TRIPLET AND NOT DEFINED CONAN_EXPORT)
+    # Need to manually copy over the fmt library if we're not using vcpkg or conan
+
+    find_library(FMT_LIBRARY_PATH NAMES fmtd PATHS ${fmt_DIR}/lib)
+
+    if (FMT_LIBRARY_PATH)
+        message("Found fmt library: ${FMT_LIBRARY_PATH}")
+    else()
+        message(FATAL_ERROR "Could not find fmt library")
+    endif()
+
+    install(
+        FILES ${FMT_LIBRARY_PATH}
+        DESTINATION tools/enumgen
+    )
+endif()

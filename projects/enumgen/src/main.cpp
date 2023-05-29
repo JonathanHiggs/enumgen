@@ -7,35 +7,29 @@
 
 void showUsage()
 {
-    fmt::print("usage: enumgen <inputFile> [<configFile>]\n");
+    fmt::print("usage: enumgen <inputFile> <configFile> <outputPath>\n");
 }
 
 
 int main(int argc, char** argv, int envc, char** envv)
 {
-    if (!(argc == 2 || argc == 3))
+    if (!(argc == 4))
     {
         showUsage();
         return 0;
     }
 
-    auto inputFile = std::filesystem::absolute(argv[1]).make_preferred();
-    if (!std::filesystem::exists(inputFile))
-    {
-        fmt::print("Input file not found:\n    {}\n", inputFile);
-        return -1;
-    }
-
-    auto configFile = argc == 3 ? std::filesystem::absolute(argv[2]).make_preferred() : enumgen::findConfigFile(inputFile);
-    auto config = enumgen::tryReadConfig(configFile);
-    if (!config || !enumgen::validateConfig(*config))
-    {
-        return -1;
-    }
+    auto inputFile = std::string_view(argv[1], std::strlen(argv[1]));
+    auto configFile = std::string_view(argv[2], std::strlen(argv[2]));
+    auto outputPath = std::string_view(argv[3], std::strlen(argv[3]));
 
     try
     {
-        enumgen::generateEnums(inputFile, *config);
+        auto result = enumgen::generateEnums(inputFile, configFile, outputPath);
+        if (!result)
+        {
+            return -1;
+        }
     }
     catch (const std::exception& e)
     {
