@@ -1,4 +1,4 @@
-#include <codegen/EnumGenerator.h>
+#include <enumgen/Enums.h>
 
 #include <fmt/core.h>
 #include <fmt/printf.h>
@@ -18,7 +18,7 @@ using namespace std::filesystem;
 using namespace std::string_view_literals;
 
 
-namespace codegen
+namespace enumgen
 {
     namespace
     {
@@ -378,4 +378,4 @@ namespace codegen
         fmt::print("Templates generated\n");
     }
 
-}  // namespace codegen
+}  // namespace enumgen

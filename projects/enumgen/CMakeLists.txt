@@ -1,6 +1,6 @@
-add_executable(codegen)
+add_executable(enumgen)
 
-set_target_properties(codegen PROPERTIES
+set_target_properties(enumgen PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON)
 
@@ -9,12 +9,12 @@ file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
-target_sources(codegen PRIVATE
+target_sources(enumgen PRIVATE
     ${SOURCE_FILES}
 )
 
-if(CODEGEN_COMPILER_MSVC)
-    target_compile_options(codegen PRIVATE
+if(ENUMGEN_COMPILER_MSVC)
+    target_compile_options(enumgen PRIVATE
         "/std:c++20"                    # c++ standard
         "/bigobj"                       # increases the number of sections in .obj files
         "/FC"                           # display full path in diagnostics
@@ -30,7 +30,7 @@ if(CODEGEN_COMPILER_MSVC)
         "$<$<CONFIG:RELEASE>:/Ot>"      # prefer fast optimizations
     )
 else()
-    target_compile_options(codegen PRIVATE
+    target_compile_options(enumgen PRIVATE
         "-std=c++20"
         "-Wall"
         "-Wextra"
@@ -40,11 +40,11 @@ else()
 endif()
 
 
-target_include_directories(codegen PUBLIC
+target_include_directories(enumgen PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
-target_link_libraries(codegen PUBLIC
+target_link_libraries(enumgen PUBLIC
     pantor::inja
     nlohmann_json::nlohmann_json
     spdlog::spdlog

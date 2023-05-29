@@ -1,4 +1,4 @@
-#include <codegen/Config.h>
+#include <enumgen/Config.h>
 
 #include <fmt/printf.h>
 #include <fmt/std.h>
@@ -10,12 +10,12 @@
 using namespace std::filesystem;
 
 
-namespace codegen
+namespace enumgen
 {
 
     std::filesystem::path findConfigFile(std::filesystem::path const & inputFile) noexcept
     {
-        return absolute(inputFile.parent_path() / "cg.config.json").make_preferred();
+        return absolute(inputFile.parent_path() / "enumgen.config.json").make_preferred();
     }
 
     std::filesystem::path findTemplateDirectory(std::filesystem::path const & configFile, std::string const & hint)
@@ -104,4 +104,4 @@ namespace codegen
         return success;
     }
 
-}  // namespace codegen
+}  // namespace enumgen

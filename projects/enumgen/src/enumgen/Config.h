@@ -5,7 +5,7 @@
 #include <string>
 
 
-namespace codegen
+namespace enumgen
 {
 
     /// <summary>
@@ -18,7 +18,7 @@ namespace codegen
     };
 
     /// <summary>
-    /// Global codegen config
+    /// Global enumgen config
     /// </summary>
     struct Config final
     {
@@ -27,7 +27,8 @@ namespace codegen
         EnumConfig enumConfig;
     };
 
-    std::filesystem::path findConfigFile(std::filesystem::path const& inputFile) noexcept;
+
+    std::filesystem::path findConfigFile(std::filesystem::path const & inputFile) noexcept;
 
     /// <summary>
     /// Reads a config file
@@ -37,6 +38,6 @@ namespace codegen
     /// <summary>
     /// Validates the contents of a config file
     /// </summary>
-    bool validateConfig(Config const& config) noexcept;
+    bool validateConfig(Config const & config) noexcept;
 
-}
+}  // namespace enumgen

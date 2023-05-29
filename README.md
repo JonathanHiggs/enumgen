@@ -1,4 +1,4 @@
-# CppCodeGen
+# EnumGen
 
 Small c++ code generator utility
 
@@ -7,7 +7,7 @@ Small c++ code generator utility
 Call from the command line with a specification file containing definitions of enums to be generated with a config file
 
 ```bash
-$ codegen enums.cg.json cg.config.json
+$ enumgen enums.eg.json enumgen.config.json
 ```
 
 ### Specification file

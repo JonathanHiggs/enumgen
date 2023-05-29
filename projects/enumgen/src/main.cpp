@@ -1,5 +1,5 @@
-#include <codegen/Config.h>
-#include <codegen/EnumGenerator.h>
+#include <enumgen/Config.h>
+#include <enumgen/Enums.h>
 
 #include <fmt/printf.h>
 #include <fmt/std.h>
@@ -7,7 +7,7 @@
 
 void showUsage()
 {
-    fmt::print("usage: codegen <inputFile> [<configFile>]\n");
+    fmt::print("usage: enumgen <inputFile> [<configFile>]\n");
 }
 
 
@@ -26,16 +26,16 @@ int main(int argc, char** argv, int envc, char** envv)
         return -1;
     }
 
-    auto configFile = argc == 3 ? std::filesystem::absolute(argv[2]).make_preferred() : codegen::findConfigFile(inputFile);
-    auto config = codegen::tryReadConfig(configFile);
-    if (!config || !codegen::validateConfig(*config))
+    auto configFile = argc == 3 ? std::filesystem::absolute(argv[2]).make_preferred() : enumgen::findConfigFile(inputFile);
+    auto config = enumgen::tryReadConfig(configFile);
+    if (!config || !enumgen::validateConfig(*config))
     {
         return -1;
     }
 
     try
     {
-        codegen::generateEnums(inputFile, *config);
+        enumgen::generateEnums(inputFile, *config);
     }
     catch (const std::exception& e)
     {

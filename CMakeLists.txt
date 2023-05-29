@@ -12,19 +12,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 
 ## Project
-file(READ "version.txt" CODEGEN_VERSION)
+file(READ "version.txt" ENUMGEN_VERSION)
 
 project(
-    codegen
-    VERSION ${CODEGEN_VERSION}
+    enumgen
+    VERSION ${ENUMGEN_VERSION}
     DESCRIPTION "Code generator for C++"
-    HOMEPAGE_URL "https://github.com/JonathanHiggs/codegen"
+    HOMEPAGE_URL "https://github.com/JonathanHiggs/enumgen"
     LANGUAGES CXX
 )
 
 
 ## Options
-option(CODEGEN_ENABLE_TESTS "Enable tests" OFF)
+option(ENUMGEN_ENABLE_TESTS "Enable tests" OFF)
 
 
 ## Build Options
