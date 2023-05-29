@@ -1,0 +1,145 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "ENUMGEN_CURRENT_PRESET": "${presetName}"
+      }
+    },
+    {
+      "name": "config",
+      "hidden": true,
+      "cacheVariables": {}
+    },
+    {
+      "name": "linux",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": "Linux"
+        }
+      }
+    },
+    {
+      "name": "windows",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": "Windows",
+          "intelliSenseMode": "windows-clang-x64"
+        }
+      }
+    },
+    {
+      "name": "debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "pdb",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc",
+      "hidden": true,
+      "inherits": [ "linux" ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "msclang",
+      "hidden": true,
+      "inherits": [ "windows" ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "clang-cl.exe"
+      }
+    },
+    {
+      "name": "msvc",
+      "hidden": true,
+      "inherits": [ "windows" ]
+    },
+    {
+      "name": "make",
+      "hidden": true,
+      "inherits": [ "linux" ],
+      "generator": "Unix Makefiles"
+    },
+    {
+      "name": "ninja",
+      "hidden": true,
+      "generator": "Ninja"
+    },
+    {
+      "name": "vs2022",
+      "hidden": true,
+      "inherits": [ "windows" ],
+      "generator": "Visual Studio 17 2022"
+    },
+    {
+      "name": "gcc.debug.ninja",
+      "inherits": [ "base", "config", "gcc", "debug", "ninja" ]
+    },
+    {
+      "name": "gcc.pdb.ninja",
+      "inherits": [ "base", "config", "gcc", "pdb", "ninja" ]
+    },
+    {
+      "name": "gcc.release.ninja",
+      "inherits": [ "base", "config", "gcc", "release", "ninja" ]
+    },
+    {
+      "name": "msvc.debug.ninja",
+      "inherits": [ "base", "config", "msvc", "debug", "ninja" ]
+    },
+    {
+      "name": "msvc.pdb.ninja",
+      "inherits": [ "base", "config", "msvc", "pdb", "ninja" ]
+    },
+    {
+      "name": "msvc.release.ninja",
+      "inherits": [ "base", "config", "msvc", "release", "ninja" ]
+    },
+    {
+      "name": "msvc.debug.vs2022",
+      "inherits": [ "base", "config", "msvc", "debug", "vs2022" ]
+    },
+    {
+      "name": "msvc.pdb.vs2022",
+      "inherits": [ "base", "config", "msvc", "pdb", "vs2022" ]
+    },
+    {
+      "name": "msvc.release.vs2022",
+      "inherits": [ "base", "config", "msvc", "release", "vs2022" ]
+    }
+  ]
+}

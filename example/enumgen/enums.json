@@ -1,14 +1,14 @@
 {
-  "headerRoot": "../include",
-  "codeRoot": "../src",
+  "headerRoot": "./include",
+  "codeRoot": "./src",
   "enums": [
     {
       "name": "Verbosity",
       "description": "Represents the verbosity of logging output",
-      "headerPath": "./myproject",
-      "codePath": "./myproject",
-      "includePath": "myproject",
-      "namespace": "myproject",
+      "headerPath": "./example",
+      "codePath": "./example",
+      "includePath": "example",
+      "namespace": "example",
       "underlyingType": "int",
       "default": "Normal",
       "items": [
@@ -38,19 +38,6 @@
           "name": "Diagnostic",
           "value": 4,
           "string": "Diagnostic"
-        }
-      ]
-    },
-    {
-      "name": "MyEnum",
-      "headerPath": "./myproject/enums",
-      "codePath": "./myproject/enums",
-      "includePath": "myproject/enums",
-      "namespace": "myproject::enums",
-      "items": [
-        {
-          "name": "Value1",
-          "string": "value"
         }
       ]
     }

@@ -3,7 +3,7 @@
 
 #include <{{ enum.includePath }}/{{ enum.name }}.h>
 
-#include <fmt/core.h>
+#include <format>
 
 
 using namespace std::string_view_literals;
@@ -27,6 +27,11 @@ namespace {{ enum.namespace }}
         return values;
     }
 
+    std::string_view {{ enum.name }}::Name() noexcept
+    {
+        return "{{ enum.name }}"sv;
+    }
+
     std::string_view {{ enum.name }}::ToString() const noexcept
     {
         switch (value)
@@ -44,7 +49,7 @@ namespace {{ enum.namespace }}
         auto result = TryParse(str);
         if (!result)
         {
-            throw std::exception(fmt::format(
+            throw std::exception(std::format(
                 "Unable to parse {{ enum.namespace }}::{{ enum.name }} from '{}'    {} ln{}",
                 str,
                 __FILE__,

@@ -7,6 +7,7 @@
 #include <string_view>
 #include <optional>
 #include <ostream>
+#include <vector>
 
 
 namespace {{ enum.namespace }}
@@ -90,7 +91,12 @@ namespace {{ enum.namespace }}
         /// <summary>
         /// Returns an array with all {{ enum.name }} values
         /// </summary>
-        [[nodiscard]] std::array<{{ enum.name }}, {{ length(enum.items) }}ul> const & Values() noexcept;
+        [[nodiscard]] static std::array<{{ enum.name }}, {{ length(enum.items) }}ul> const & Values() noexcept;
+
+        /// <summary>
+        /// Returns the name of the enum
+        /// </summary>
+        [[nodiscard]] static std::string_view Name() noexcept;
 
         /// <summary>
         /// Returns a string representation of the enum value
