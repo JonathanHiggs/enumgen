@@ -2,27 +2,25 @@
 
 ## General
 
-- Add README
-- Improve logging and add verbosity control
+* Switch to header-only fmt and spdlog libs
+* Improve logging and add verbosity control
+  * Output & error log files
 
 ## Enums
 
-- Optional test generation
-- [maybe] Header only enums
+* Optional test generation
+* Header only enums
 
 ## CMake integration
 
-- Add config option to dump file with generated files
+* Add config option to dump to file list of generated files
+  * Could generate a cmake file that adds all generated files to a target
 
 ## CmdLine
 
-- Add 'generate' command
-- Add 'version' command
-- Add 'validate' command
+* Add 'generate' command
+* Add 'validate' command
 
 ## Ideas
 
-- Scan for enum configs and generate all
-- Generate a sample config
-- Generate a sample enum description
-- Add config / description versions and add migration tool
+* Include example and 'init' command to generate a sample config, specification and templates

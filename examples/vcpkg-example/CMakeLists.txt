@@ -6,7 +6,7 @@ project(
 )
 
 # find_package auto-includes the enumgen function: `enumgen_generate`
-find_package(enumgen REQUIRED)
+find_package(enumgen CONFIG REQUIRED)
 
 add_executable(vcpkg-example)
 

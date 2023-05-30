@@ -39,7 +39,7 @@ $ vcpkg install enumgen
 Once installed it will be used in CMakeLists.txt to generate the enums
 
 ```cmake
-find_package(enumgen REQUIRED)
+find_package(enumgen CONFIG REQUIRED)
 
 add_library(mylibrary)
 
@@ -235,7 +235,7 @@ EnumGen can be integrated into a CMake project using the [enumgen.cmake](cmake/e
 add the package to the project
 
 ```cmake
-find_package(enumgen REQUIRED)
+find_package(enumgen CONFIG REQUIRED)
 ```
 
 Add a config, enums specification and templates along side the other source files. It is recommended to not put the
