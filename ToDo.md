@@ -4,8 +4,8 @@
 
 * ~~Switch to header-only fmt and spdlog libs~~
 * Better parsing of command line arguments
-* Improve logging and add verbosity control
-  * Output & error log files
+* ~~Improve logging and add verbosity control~~
+  * ~~Output & error log files~~
 
 ## Enums
 

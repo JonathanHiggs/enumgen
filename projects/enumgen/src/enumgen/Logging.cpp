@@ -2,38 +2,39 @@
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
+#include <spdlog/spdlog.h>
+
 
 namespace enumgen
 {
-
-    std::shared_ptr<spdlog::logger> & logger() noexcept
-    {
-        static std::shared_ptr<spdlog::logger> logger = nullptr;
-        return logger;
-    }
 
     void initLogging(std::filesystem::path const & outputDirectory)
     {
         // Output logger
         auto outputFile = outputDirectory / "enumgen.output.log";
-        auto outputSink = std::make_shared<spdlog::sinks::basic_file_sink_st>(outputFile.string());
+        auto outputSink = std::make_shared<spdlog::sinks::basic_file_sink_st>(outputFile.string(), true);
         outputSink->set_level(spdlog::level::info);
-        outputSink->set_pattern("[%p] %v");
+        outputSink->set_pattern("[%l] %v");
 
         auto errorFile = outputDirectory / "enumgen.error.log";
-        auto errorSink = std::make_shared<spdlog::sinks::basic_file_sink_st>(errorFile.string());
-        outputSink->set_level(spdlog::level::trace);
-        outputSink->set_pattern("[%p][%L] %v");
+        auto errorSink = std::make_shared<spdlog::sinks::basic_file_sink_st>(errorFile.string(), true);
+        errorSink->set_level(spdlog::level::trace);
+        errorSink->set_pattern("[%l] %v");
 
         auto consoleSink = std::make_shared<spdlog::sinks::stdout_sink_st>();
         consoleSink->set_level(spdlog::level::warn);
-        consoleSink->set_pattern("[enumgen][%p] %v");
+        consoleSink->set_pattern("[enumgen][%l] %v");
 
         auto logger = std::make_shared<spdlog::logger>(
-            "out",
-            std::initializer_list<spdlog::sink_ptr>{ std::move(outputSink), std::move(errorSink), std::move(consoleSink) });
+            "logger",
+            std::initializer_list<spdlog::sink_ptr>{ std::move(outputSink),
+                                                     std::move(errorSink),
+                                                     std::move(consoleSink) });
 
-        enumgen::logger() = std::move(logger);
+        logger->set_level(spdlog::level::trace);
+        logger->trace("Initialized logging");
+
+        spdlog::register_logger(std::move(logger));
     }
 
 }  // namespace enumgen

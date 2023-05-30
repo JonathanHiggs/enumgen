@@ -7,6 +7,7 @@
 #include <fmt/std.h>
 #include <inja/inja.hpp>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 #include <filesystem>
 #include <functional>
@@ -318,7 +319,7 @@ namespace enumgen
             json const & description,
             Config const & config)
         {
-            auto logger = enumgen::logger();
+            auto logger = spdlog::get("logger");
 
             auto name = description[nameField].get<std::string_view>();
             auto headerFile = resolveHeaderFile(root, inputData, description, name);
@@ -396,7 +397,7 @@ namespace enumgen
 
     bool generateEnums(path const & inputFile, std::filesystem::path const & outputRoot, Config const & config) noexcept
     {
-        auto logger = enumgen::logger();
+        auto logger = spdlog::get("logger");
 
         logger->debug("Input file:          {}", inputFile);
         logger->debug("Config file:         {}", config.configFile);
@@ -407,7 +408,7 @@ namespace enumgen
         auto env = inja::Environment();
         env.set_trim_blocks(true);
 
-        logger->info("Loading input data from:\n    {}", inputFile);
+        logger->info("Loading input data from: {}", inputFile);
         auto inputData = env.load_json(inputFile.string());
 
         auto validationResults = validateEnums(inputData);
@@ -428,7 +429,7 @@ namespace enumgen
             generateEnum(outputRoot, env, inputData, description, config);
         }
 
-        logger->info("Templates generated\n");
+        logger->info("Templates generated");
 
         return true;
     }
@@ -439,7 +440,7 @@ namespace enumgen
 
         initLogging(output);
 
-        auto logger = enumgen::logger();
+        auto logger = spdlog::get("logger");
 
         logger->info("Running enumgen generate");
 

@@ -1,9 +1,9 @@
 #include <enumgen/Config.hpp>
-#include <enumgen/Logging.hpp>
 
 #include <fmt/printf.h>
 #include <fmt/std.h>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 #include <fstream>
 
@@ -32,7 +32,7 @@ namespace enumgen
 
     std::optional<Config> tryReadConfig(path const & configFile) noexcept
     {
-        auto logger = enumgen::logger();
+        auto logger = spdlog::get("logger");
 
         auto configFileFullPath = absolute(configFile).make_preferred();
         if (!exists(configFileFullPath))
