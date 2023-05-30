@@ -1,4 +1,5 @@
 #include <enumgen/Config.hpp>
+#include <enumgen/Logging.hpp>
 
 #include <fmt/printf.h>
 #include <fmt/std.h>
@@ -31,10 +32,12 @@ namespace enumgen
 
     std::optional<Config> tryReadConfig(path const & configFile) noexcept
     {
+        auto logger = enumgen::logger();
+
         auto configFileFullPath = absolute(configFile).make_preferred();
         if (!exists(configFileFullPath))
         {
-            fmt::print("Config file not found: {}\n", configFileFullPath);
+            logger->error("Config file not found: {}\n", configFileFullPath);
             return std::nullopt;
         }
 
@@ -43,6 +46,8 @@ namespace enumgen
 
         try
         {
+            logger->debug("Reading config file: {}", configFileFullPath);
+
             auto const & json = nlohmann::json::parse(std::ifstream{ configFileFullPath, std::ios::in });
 
             config.templatesDirectory = findTemplateDirectory(
@@ -60,19 +65,23 @@ namespace enumgen
                 config.enumConfig.headerTemplateFile
                     = absolute(config.templatesDirectory / headerTemplateName).make_preferred();
 
+                logger->debug("Resolved enum header template: {}", config.enumConfig.headerTemplateFile);
+
                 auto codeTemplateName = enumConfigJson.contains("codeTemplateName")
                                             ? enumConfigJson["codeTemplateName"].get<std::string>()
                                             : "enum.cpp.inja";
 
                 config.enumConfig.codeTemplateFile
                     = absolute(config.templatesDirectory / codeTemplateName).make_preferred();
+
+                logger->debug("Resolved enum code template: {}", config.enumConfig.codeTemplateFile);
             }
 
             return config;
         }
         catch (std::exception const & ex)
         {
-            fmt::print("Error reading config file:\n    file:  {}\n    error: {}\n", configFileFullPath, ex.what());
+            logger->error("Error reading config file: {}", ex.what());
             return std::nullopt;
         }
     }

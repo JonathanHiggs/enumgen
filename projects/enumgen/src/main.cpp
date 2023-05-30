@@ -20,6 +20,8 @@ int generate([[maybe_unused]] int argc, char ** argv)
 
     try
     {
+        fmt::print("generate: {}  {}  {}", inputFile, configFile, outputPath);
+
         auto result = enumgen::generateEnums(inputFile, configFile, outputPath);
         if (!result)
         {

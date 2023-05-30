@@ -3,6 +3,8 @@
 set(VCPKG_USE_HEAD_VERSION ON)
 get_filename_component(ENUMGEN_REPO_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../.." REALPATH)
 
+message("-- Installing enumgen from ${ENUMGEN_REPO_DIR}")
+
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL "${ENUMGEN_REPO_DIR}"

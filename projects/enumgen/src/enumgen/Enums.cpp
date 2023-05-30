@@ -1,4 +1,5 @@
 #include <enumgen/Enums.hpp>
+#include <enumgen/Logging.hpp>
 
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -317,6 +318,8 @@ namespace enumgen
             json const & description,
             Config const & config)
         {
+            auto logger = enumgen::logger();
+
             auto name = description[nameField].get<std::string_view>();
             auto headerFile = resolveHeaderFile(root, inputData, description, name);
             auto codeFile = resolveCodeFile(root, inputData, description, name);
@@ -326,28 +329,25 @@ namespace enumgen
 
             try
             {
-                fmt::print(
-                    "Generating header for {}\n    from: {}\n    to:   {}\n",
-                    name,
-                    config.enumConfig.headerTemplateFile,
-                    headerFile);
+                logger->info("Generating header for {}", name);
+                logger->debug("    from: {}", config.enumConfig.headerTemplateFile);
+                logger->debug("    to:   {}", headerFile);
 
                 env.write(config.enumConfig.headerTemplateFile.string(), renderData, headerFile.string());
 
-                fmt::print(
-                    "Generating code for {}\n    from: {}\n    to:   {}\n",
-                    name,
-                    config.enumConfig.codeTemplateFile,
-                    codeFile);
+                logger->info("Generating code for {}", name);
+                logger->debug("   from: {}", config.enumConfig.codeTemplateFile);
+                logger->debug("   to:   {}", codeFile);
 
                 env.write(config.enumConfig.codeTemplateFile.string(), renderData, codeFile.string());
-
 
                 return true;
             }
             catch (std::exception const & ex)
             {
-                fmt::print("Error generating enums:\n    {}\n", ex.what());
+                logger->error("Error generating enums: {}", ex.what());
+                logger->trace("Cleaning header {}", headerFile);
+                logger->trace("Cleaning code {}", codeFile);
 
                 remove(headerFile);
                 remove(codeFile);
@@ -396,25 +396,28 @@ namespace enumgen
 
     bool generateEnums(path const & inputFile, std::filesystem::path const & outputRoot, Config const & config) noexcept
     {
-        fmt::print("Input file:          {}\n", inputFile);
-        fmt::print("Config file:         {}\n", config.configFile);
-        fmt::print("Templates directory: {}\n", config.templatesDirectory);
-        fmt::print("Output directory:    {}\n", outputRoot);
+        auto logger = enumgen::logger();
 
-        fmt::print("Initialize inja\n");
+        logger->debug("Input file:          {}", inputFile);
+        logger->debug("Config file:         {}", config.configFile);
+        logger->debug("Templates directory: {}", config.templatesDirectory);
+        logger->debug("Output directory:    {}", outputRoot);
+
+        logger->info("Initialize inja templating engine");
         auto env = inja::Environment();
         env.set_trim_blocks(true);
 
-        fmt::print("Loading input data from:\n    {}\n", inputFile);
+        logger->info("Loading input data from:\n    {}", inputFile);
         auto inputData = env.load_json(inputFile.string());
 
         auto validationResults = validateEnums(inputData);
         if (!validationResults.empty())
         {
-            fmt::print("Errors while validating enums input\n");
-            for (auto const & error : validationResults)
+            logger->error("Errors while validating enums input");
+
+            for (auto const & message : validationResults)
             {
-                fmt::print("    {}\n", error);
+                logger->debug("    {}", message);
             }
 
             return false;
@@ -425,24 +428,31 @@ namespace enumgen
             generateEnum(outputRoot, env, inputData, description, config);
         }
 
-        fmt::print("Templates generated\n");
+        logger->info("Templates generated\n");
 
         return true;
     }
 
     bool generateEnums(std::string_view inputFile, std::string_view configFile, std::string_view outputPath) noexcept
     {
+        auto output = resolveOutputPath(outputPath);
+
+        initLogging(output);
+
+        auto logger = enumgen::logger();
+
+        logger->info("Running enumgen generate");
+
         auto input = resolveInputFile(inputFile);
         auto configPath = resolveConfigFile(configFile);
 
         auto config = tryReadConfig(configPath);
         if (!config || !validateConfig(*config))
         {
-            fmt::print("Invalid config\n");
+            logger->error("Invalid config");
             return false;
         }
 
-        auto output = resolveOutputPath(outputPath);
 
         return generateEnums(input, output, *config);
     }

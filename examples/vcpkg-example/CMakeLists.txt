@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 project(
-    vcpkg-vcpkg-example
+    vcpkg-example
     LANGUAGES CXX
 )
 
