@@ -12,7 +12,7 @@ void showUsage()
 }
 
 
-int generate(int argc, char ** argv)
+int generate([[maybe_unused]] int argc, char ** argv)
 {
     auto inputFile = std::string_view(argv[1ul], std::strlen(argv[1ul]));
     auto configFile = std::string_view(argv[2ul], std::strlen(argv[2ul]));
@@ -36,7 +36,7 @@ int generate(int argc, char ** argv)
 }
 
 
-int main(int argc, char ** argv, int envc, char ** envv)
+int main(int argc, char ** argv)
 {
     if (argc == 2)
     {
