@@ -1,23 +1,28 @@
-## Enumgen CommandLine Tool
+add_library(enumgen_core STATIC)
+add_library(enumgen::core ALIAS enumgen_core)
 
-add_executable(enumgen)
-add_executable(enumgen::enumgen ALIAS enumgen)
-
-set_target_properties(enumgen PROPERTIES
+set_target_properties(enumgen_core PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON)
+
+set(ENUMGEN_VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/include/enumgen/Version.hpp")
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/templates/Version.hpp.in"
+    ${ENUMGEN_VERSION_HEADER}
+)
 
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
-target_sources(enumgen PRIVATE
+target_sources(enumgen_core PRIVATE
     ${SOURCE_FILES}
 )
 
 if(ENUMGEN_COMPILER_MSVC)
-    target_compile_options(enumgen PRIVATE
+    target_compile_options(enumgen_core PRIVATE
         "/std:c++20"                    # c++ standard
         "/FC"                           # display full path in diagnostics
         "/WX"                           # warnings as errors
@@ -29,7 +34,7 @@ if(ENUMGEN_COMPILER_MSVC)
         "$<$<CONFIG:RELEASE>:/Ot>"      # prefer fast optimizations
     )
 else()
-    target_compile_options(enumgen PRIVATE
+    target_compile_options(enumgen_core PRIVATE
         "-std=c++20"
         "-Wall"
         "-Wextra"
@@ -39,32 +44,16 @@ else()
 endif()
 
 
-target_include_directories(enumgen
-    PRIVATE
+target_include_directories(enumgen_core
+    PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 )
 
-target_link_libraries(enumgen
-    PRIVATE
-        enumgen::core
-)
-
-
-install(
-    TARGETS enumgen
-    EXPORT enumgen-targets
-    CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES}
-    RUNTIME DESTINATION tools/enumgen
-)
-
-install(
-    FILES ${ENUMGEN_VERSION_HEADER}
-    DESTINATION include/enumgen
-)
-
-install(
-    EXPORT enumgen-targets
-    NAMESPACE enumgen::
-    DESTINATION share/enumgen
+target_link_libraries(enumgen_core
+    PUBLIC
+        fmt::fmt-header-only
+        pantor::inja
+        nlohmann_json::nlohmann_json
+        spdlog::spdlog_header_only
 )

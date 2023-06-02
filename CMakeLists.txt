@@ -24,8 +24,8 @@ project(
 
 
 ## Options
-option(ENUMGEN_PACKAGE_BUILD "Configure package build" OFF)
-option(ENUMGEN_ENABLE_TESTS "Enable tests" OFF)
+option(ENUMGEN_BUILD_PACKAGE "Configure build for packaging" OFF)
+option(ENUMGEN_BUILD_TESTS "Enable building tests" ON)
 
 
 ## Build Options
@@ -50,11 +50,14 @@ include(platform)
 detect_platform()
 
 
-# enable_testing()
+if(ENUMGEN_BUILD_TESTS)
+    enable_testing()
+endif()
 
 
 ## Dependencies
 find_package(fmt            CONFIG REQUIRED)
+find_package(GTest          CONFIG REQUIRED)
 find_package(nlohmann_json  CONFIG REQUIRED)
 find_package(inja           CONFIG REQUIRED)
 find_package(spdlog         CONFIG REQUIRED)

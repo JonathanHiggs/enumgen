@@ -16,8 +16,8 @@ set(VCPKG_BUILD_TYPE release)
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
-        -DENUMGEN_PACKAGE_BUILD=ON
-        -DENUMGEN_ENABLE_TESTS=OFF
+        -DENUMGEN_BUILD_PACKAGE=ON
+        -DENUMGEN_BUILD_TESTS=OFF
 )
 
 vcpkg_cmake_install()

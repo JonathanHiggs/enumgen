@@ -1,23 +1,15 @@
-## Enumgen CommandLine Tool
+include(GoogleTest)
 
-add_executable(enumgen)
-add_executable(enumgen::enumgen ALIAS enumgen)
+add_executable(enumgen_core_tests)
 
-set_target_properties(enumgen PROPERTIES
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED ON)
-
-file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
+file(GLOB_RECURSE TEST_FILES CMAKE_CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
-target_sources(enumgen PRIVATE
-    ${SOURCE_FILES}
-)
+target_sources(enumgen_core_tests PRIVATE ${TEST_FILES})
 
 if(ENUMGEN_COMPILER_MSVC)
-    target_compile_options(enumgen PRIVATE
+    target_compile_options(enumgen_core_tests PRIVATE
         "/std:c++20"                    # c++ standard
         "/FC"                           # display full path in diagnostics
         "/WX"                           # warnings as errors
@@ -29,7 +21,7 @@ if(ENUMGEN_COMPILER_MSVC)
         "$<$<CONFIG:RELEASE>:/Ot>"      # prefer fast optimizations
     )
 else()
-    target_compile_options(enumgen PRIVATE
+    target_compile_options(enumgen_core_tests PRIVATE
         "-std=c++20"
         "-Wall"
         "-Wextra"
@@ -38,33 +30,18 @@ else()
     )
 endif()
 
-
-target_include_directories(enumgen
+target_include_directories(enumgen_core_tests
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 )
 
-target_link_libraries(enumgen
+target_link_libraries(enumgen_core_tests
     PRIVATE
         enumgen::core
+        GTest::gtest
+        GTest::gtest_main
 )
 
+add_test(NAME enumgen_core_tests COMMAND enumgen_core_tests)
 
-install(
-    TARGETS enumgen
-    EXPORT enumgen-targets
-    CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES}
-    RUNTIME DESTINATION tools/enumgen
-)
-
-install(
-    FILES ${ENUMGEN_VERSION_HEADER}
-    DESTINATION include/enumgen
-)
-
-install(
-    EXPORT enumgen-targets
-    NAMESPACE enumgen::
-    DESTINATION share/enumgen
-)
+gtest_discover_tests(enumgen_core_tests)
