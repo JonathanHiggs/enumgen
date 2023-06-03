@@ -1,3 +1,4 @@
+#include <enumgen/helpers/CommandLineHelpers.hpp>
 #include <enumgen/utils/ArgParser.hpp>
 
 #include <gtest/gtest.h>
@@ -5,39 +6,11 @@
 #include <memory>
 
 
-namespace enumgen::utils
+using namespace enumgen::helpers;
+
+
+namespace enumgen::utils::tests
 {
-    namespace
-    {
-
-        struct ArgsHelper final
-        {
-            int argc;
-            char ** argv;
-            std::unique_ptr<char *[]> holder;
-
-            explicit ArgsHelper(std::initializer_list<std::string_view> strings) noexcept
-              : argc(static_cast<int>(strings.size()))
-            {
-                holder = std::unique_ptr<char *[]>(new char *[argc]);
-
-                int index = 0;
-                for (auto const & str : strings)
-                {
-                    holder[index] = const_cast<char *>(str.data());
-                    ++index;
-                }
-
-                argv = holder.get();
-            }
-        };
-
-        ArgsHelper createArgs(std::initializer_list<std::string_view> strings)
-        {
-            return ArgsHelper(std::move(strings));
-        }
-
-    }  // namespace
 
     TEST(ArgParserTests, preprocess)
     {
@@ -312,4 +285,4 @@ namespace enumgen::utils
         ASSERT_FALSE(eofResult);
     }
 
-}  // namespace enumgen::utils
+}  // namespace enumgen::utils::tests

@@ -24,6 +24,7 @@ namespace enumgen::utils
 
         Tokens(int index, std::span<token_type> tokens) noexcept;
 
+        [[nodiscard]] bool any() const noexcept;
         [[nodiscard]] bool empty() const noexcept;
         [[nodiscard]] size_t size() const noexcept;
         [[nodiscard]] token_type front() const noexcept;
@@ -124,6 +125,16 @@ namespace enumgen::utils
         std::string_view value;
 
         explicit Verb(std::string_view value) noexcept;
+
+        [[nodiscard]] friend bool operator==(Verb const & lhs, std::string_view rhs) noexcept
+        {
+            return lhs.value == rhs;
+        }
+
+        [[nodiscard]] friend bool operator!=(Verb const & lhs, std::string_view rhs) noexcept
+        {
+            return !(lhs == rhs);
+        }
     };
 
 
@@ -133,6 +144,16 @@ namespace enumgen::utils
         std::string_view value;
 
         explicit Flag(std::string_view token, std::string_view value) noexcept;
+
+        [[nodiscard]] friend bool operator==(Flag const & lhs, std::string_view rhs) noexcept
+        {
+            return lhs.token == rhs;
+        }
+
+        [[nodiscard]] friend bool operator!=(Flag const & lhs, std::string_view rhs) noexcept
+        {
+            return !(lhs == rhs);
+        }
     };
 
     struct Value final

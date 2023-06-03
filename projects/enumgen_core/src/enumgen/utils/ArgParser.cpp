@@ -66,6 +66,11 @@ namespace enumgen::utils
     Tokens::Tokens(int index, std::span<token_type> tokens) noexcept : index(index), tokens(tokens)
     { }
 
+    bool Tokens::any() const noexcept
+    {
+        return !tokens.empty();
+    }
+
     bool Tokens::empty() const noexcept
     {
         return tokens.empty();
