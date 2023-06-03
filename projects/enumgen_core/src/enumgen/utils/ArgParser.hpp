@@ -75,22 +75,32 @@ namespace enumgen::utils
             return std::holds_alternative<output_type>(storage);
         }
 
-        [[nodiscard]] output_type * operator->()
+        [[nodiscard]] value_type & operator*()
         {
-            return &std::get<output_type>(storage);
+            return std::get<output_type>(storage).value;
         }
 
-        [[nodiscard]] output_type const * operator->() const
+        [[nodiscard]] value_type const & operator*() const
         {
-            return &std::get<output_type>(storage);
+            return std::get<output_type>(storage).value;
         }
 
-        [[nodiscard]] const output_type & Output() const
+        [[nodiscard]] value_type * operator->()
         {
-            return std::get<output_type>(storage);
+            return &std::get<output_type>(storage).value;
         }
 
-        [[nodiscard]] const error_type & Error() const
+        [[nodiscard]] value_type const * operator->() const
+        {
+            return &std::get<output_type>(storage).value;
+        }
+
+        [[nodiscard]] remainder_type remainder() const
+        {
+            return std::get<output_type>(storage).remainder;
+        }
+
+        [[nodiscard]] const error_type & error() const
         {
             return std::get<error_type>(storage);
         }
@@ -109,37 +119,44 @@ namespace enumgen::utils
     }  // namespace errors
 
 
-    using Verb = std::string_view;
-    using OptionFlag = std::string_view;
-    using OptionValue = std::string_view;
+    struct Verb final
+    {
+        std::string_view value;
+
+        explicit Verb(std::string_view value) noexcept;
+    };
+
+
+    struct Flag final
+    {
+        std::string_view token;
+        std::string_view value;
+
+        explicit Flag(std::string_view token, std::string_view value) noexcept;
+    };
+
+    struct Value final
+    {
+        std::string_view token;
+        std::string_view value;
+
+        explicit Value(std::string_view token, std::string_view value) noexcept;
+    };
 
     struct Option
     {
-        std::string_view flag;
-        std::string_view value;
+        Flag flag;
+        Value value;
 
-        Option() = default;
-
-        explicit Option(std::string_view flag, std::string_view value) noexcept : flag(flag), value(value)
-        { }
-    };
-
-    // Compiler is unhappy without the this specialization :(
-    template <>
-    struct Output<Option> final : public Option
-    {
-        Tokens remainder;
-
-        Output(std::string_view flag, std::string_view value, Tokens remainder) noexcept : Option(flag, value), remainder(remainder)
-        { }
+        explicit Option(Flag flag, Value value) noexcept;
     };
 
 
     Result<Verb> parseVerb(Tokens const & input) noexcept;
 
-    Result<OptionFlag> parseOptionFlag(Tokens const & input) noexcept;
+    Result<Flag> parseFlag(Tokens const & input) noexcept;
 
-    Result<OptionValue> parseOptionValue(Tokens const & input) noexcept;
+    Result<Value> parseValue(Tokens const & input) noexcept;
 
     Result<Option> parseOption(Tokens const & input) noexcept;
 

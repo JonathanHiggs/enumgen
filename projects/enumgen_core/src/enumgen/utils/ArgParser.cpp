@@ -3,6 +3,46 @@
 
 namespace enumgen::utils
 {
+    namespace
+    {
+
+        std::string_view stripQuotes(std::string_view token) noexcept
+        {
+            if (token.size() == 1 || token[0ul] != '"' || token[token.size() - 1ul] != '"')
+            {
+                return token;
+            }
+
+            return token.substr(1ul, token.size() - 2ul);
+        }
+
+        bool startsWithFlagMarker(std::string_view str) noexcept
+        {
+            if (str.size() < 2ul)
+            {
+                return false;
+            }
+
+            if (str[0ul] == '/')
+            {
+                return true;
+            }
+
+            if (str[0ul] == '-')
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        std::string_view stripFlagMarker(std::string_view str) noexcept
+        {
+            return str.starts_with("--"sv) ? str.substr(2ul) : str.substr(1ul);
+        }
+
+    }  // namespace
+
 
     std::vector<std::string_view> preprocess(int argc, char ** argv) noexcept
     {
@@ -21,6 +61,7 @@ namespace enumgen::utils
 
         return args;
     }
+
 
     Tokens::Tokens(int index, std::span<token_type> tokens) noexcept : index(index), tokens(tokens)
     { }
@@ -50,8 +91,26 @@ namespace enumgen::utils
         return Tokens(index + count, tokens.subspan(count));
     }
 
+
     ParseError::ParseError(Tokens input, std::string_view error) noexcept : input(input), error(error)
     { }
+
+
+    Verb::Verb(std::string_view value) noexcept : value(value)
+    { }
+
+
+    Flag::Flag(std::string_view token, std::string_view value) noexcept : token(token), value(value)
+    { }
+
+
+    Value::Value(std::string_view token, std::string_view value) noexcept : token(token), value(value)
+    { }
+
+
+    Option::Option(Flag flag, Value value) noexcept : flag(std::move(flag)), value(std::move(value))
+    { }
+
 
     Result<Verb> parseVerb(Tokens const & input) noexcept
     {
@@ -72,10 +131,11 @@ namespace enumgen::utils
             return ParseError(input, errors::isOptionFlag);
         }
 
-        return Output<Verb>(token, remainder);
+        return Output<Verb>(Verb(token), remainder);
     }
 
-    Result<OptionFlag> parseOptionFlag(Tokens const & input) noexcept
+
+    Result<Flag> parseFlag(Tokens const & input) noexcept
     {
         if (input.empty())
         {
@@ -89,15 +149,18 @@ namespace enumgen::utils
             return ParseError(input, errors::tokenIsEmpty);
         }
 
-        if (token[0ul] != '/' && token[0ul] != '-')
+        if (!startsWithFlagMarker(token))
         {
             return ParseError(input, errors::isNotOptionFlag);
         }
 
-        return Output<OptionFlag>(token.substr(1ul), remainder);
+        auto value = stripFlagMarker(token);
+
+        return Output<Flag>(Flag(token, value), remainder);
     }
 
-    Result<OptionValue> parseOptionValue(Tokens const & input) noexcept
+
+    Result<Value> parseValue(Tokens const & input) noexcept
     {
         if (input.empty())
         {
@@ -116,23 +179,41 @@ namespace enumgen::utils
             return ParseError(input, errors::isOptionFlag);
         }
 
-        if (token[0ul] == '"')
+        return Output<Value>(Value(token, stripQuotes(token)), remainder);
+    }
+
+
+    namespace
+    {
+
+        Result<Option> parseCombinedOption(Tokens const & input) noexcept
         {
-            if (token.size() == 1)
-            {
-                return ParseError(input, "");  // ToDo: error message
-            }
+            // Note: not handling some pathological cases, eg --o"="
 
-            if (token[token.size() - 1ul] != '"')
-            {
-                return ParseError(input, "");  // ToDo: error message
-            }
+            auto [first, remainder] = input.takeOne();
 
-            token = token.substr(1ul, token.size() - 2ul);
+            auto equalsPos = first.find('=');
+
+            auto flagToken = first.substr(0ul, equalsPos);
+            auto flagValue = stripFlagMarker(flagToken);
+
+            auto valueToken = first.substr(equalsPos + 1ul);
+            auto valueValue = stripQuotes(valueToken);
+
+            return Output<Option>(Option(Flag(flagToken, flagValue), Value(valueToken, valueValue)), remainder);
         }
 
-        return Output<OptionValue>(token, remainder);
-    }
+
+        Result<Option> parseSeparatedOption(Tokens const & input) noexcept
+        {
+            auto flagResult = parseFlag(input);
+            auto valueResult = parseValue(flagResult.remainder());
+
+            return Output<Option>(Option(*flagResult, *valueResult), valueResult.remainder());
+        }
+
+    }  // namespace
+
 
     Result<Option> parseOption(Tokens const & input) noexcept
     {
@@ -141,47 +222,15 @@ namespace enumgen::utils
             return ParseError(input, errors::noRemainingTokens);
         }
 
-        auto flagResult = parseOptionFlag(input);
-        if (!flagResult)
+        auto [first, _] = input.takeOne();
+
+        if (!startsWithFlagMarker(first))
         {
             return ParseError(input, errors::notOption);
         }
 
-        if (auto pos = flagResult->value.find('='); pos != std::string_view::npos)
-        {
-            auto flagToken = flagResult->value.substr(0ul, pos);
-            auto valueToken = flagResult->value.substr(pos + 1ul);
-
-            if (valueToken.empty())
-            {
-                return ParseError(input, "option token is empty");  // ToDo: error message
-            }
-
-            if (valueToken[0ul] == '"')
-            {
-                if (valueToken.size() == 1)
-                {
-                    return ParseError(input, "");  // ToDo: error message
-                }
-
-                if (valueToken[valueToken.size() - 1ul] != '"')
-                {
-                    return ParseError(input, "");  // ToDo: error message
-                }
-
-                valueToken = valueToken.substr(1ul, valueToken.size() - 2ul);
-            }
-
-            return Output<Option>(flagToken, valueToken, flagResult->remainder);
-        }
-
-        auto valueResult = parseOptionValue(flagResult->remainder);
-        if (!valueResult)
-        {
-            return ParseError(input, errors::notOption);
-        }
-
-        return Output<Option>(flagResult->value, valueResult->value, valueResult->remainder);
+        auto equalsPos = first.find('=');
+        return equalsPos != std::string_view::npos ? parseCombinedOption(input) : parseSeparatedOption(input);
     }
 
 }  // namespace enumgen::utils
