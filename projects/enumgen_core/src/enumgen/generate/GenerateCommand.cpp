@@ -42,7 +42,7 @@ namespace enumgen::generate
         }
 
         template <auto MemberValue>
-            requires utils::member_value<decltype(MemberValue)>
+            requires utils::member_value<MemberValue>
         struct Argument final
         {
             using command_type = utils::member_value_class_t<MemberValue>;
