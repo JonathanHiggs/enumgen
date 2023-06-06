@@ -212,7 +212,16 @@ namespace enumgen
         Result<Option> parseSeparatedOption(Tokens const & input) noexcept
         {
             auto flagResult = parseFlag(input);
+            if (!flagResult)
+            {
+                return flagResult.error();
+            }
+
             auto valueResult = parseValue(flagResult.remainder());
+            if (!valueResult)
+            {
+                return valueResult.error();
+            }
 
             return Output<Option>(Option(*flagResult, *valueResult), valueResult.remainder());
         }
