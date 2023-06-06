@@ -4,7 +4,7 @@
 #include <type_traits>
 
 
-namespace enumgen::utils
+namespace enumgen
 {
 
     /// <summary>
@@ -169,4 +169,4 @@ namespace enumgen::utils
         };
     // clang-format on
 
-}  // namespace enumgen::utils
+}  // namespace enumgen

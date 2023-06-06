@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enumgen/utils/ArgParser.hpp>
+#include <enumgen/utils/Parser.hpp>
 #include <enumgen/utils/Traits.hpp>
 
 #include <optional>
@@ -11,7 +11,7 @@
 using namespace std::string_view_literals;
 
 
-namespace enumgen::utils
+namespace enumgen
 {
     namespace detail
     {
@@ -87,7 +87,7 @@ namespace enumgen::utils
     /// Contains details needed to parse a command line argument matching a parameter into a command instance
     /// </summary>
     template <auto MemberValue>
-        requires utils::member_value<MemberValue>
+        requires member_value<MemberValue>
     struct Parameter final
     {
         // ToDo: bool required = std::is_optional<member_value_type> or std::function<bool(member_value_type)>
@@ -95,8 +95,8 @@ namespace enumgen::utils
         // ToDo: handle flags (std::same_as<member_value_type, bool>)
         // Maybe: track values set?
 
-        using command_type = utils::member_value_class_t<MemberValue>;
-        using member_value_type = utils::member_value_t<MemberValue>;
+        using command_type = member_value_class_t<MemberValue>;
+        using member_value_type = member_value_t<MemberValue>;
 
         std::string_view shortName;
         std::string_view longName;
@@ -303,4 +303,4 @@ namespace enumgen::utils
         return Output<command_type>(std::move(command), remainder);
     }
 
-}  // namespace enumgen::utils
+}  // namespace enumgen

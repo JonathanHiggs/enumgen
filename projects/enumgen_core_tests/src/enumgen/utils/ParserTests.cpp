@@ -1,15 +1,12 @@
-#include <enumgen/helpers/CommandLineHelpers.hpp>
-#include <enumgen/utils/ArgParser.hpp>
+#include <enumgen/tests/CommandLineHelpers.hpp>
+#include <enumgen/utils/Parser.hpp>
 
 #include <gtest/gtest.h>
 
 #include <memory>
 
 
-using namespace enumgen::helpers;
-
-
-namespace enumgen::utils::tests
+namespace enumgen::tests
 {
 
     TEST(ArgParserTests, preprocess)
@@ -285,4 +282,4 @@ namespace enumgen::utils::tests
         ASSERT_FALSE(eofResult);
     }
 
-}  // namespace enumgen::utils::tests
+}  // namespace enumgen::tests

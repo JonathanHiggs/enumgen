@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 
-namespace enumgen::utils
+namespace enumgen::tests
 {
     namespace
     {
@@ -141,4 +141,4 @@ namespace enumgen::utils
         EXPECT_TRUE((member_function_type_args<decltype(&Foo::function), int>));
     }
 
-}  // namespace enumgen::utils
+}  // namespace enumgen::tests

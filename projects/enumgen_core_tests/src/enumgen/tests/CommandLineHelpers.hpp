@@ -5,7 +5,7 @@
 #include <vector>
 
 
-namespace enumgen::helpers
+namespace enumgen::tests
 {
 
     struct ArgsHelper final
@@ -19,4 +19,4 @@ namespace enumgen::helpers
 
     ArgsHelper createArgs(std::initializer_list<std::string_view> strings) noexcept;
 
-}  // namespace enumgen::helpers
+}  // namespace enumgen::tests

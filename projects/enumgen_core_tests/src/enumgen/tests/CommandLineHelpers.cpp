@@ -1,7 +1,7 @@
-#include <enumgen/helpers/CommandLineHelpers.hpp>
+#include <enumgen/tests/CommandLineHelpers.hpp>
 
 
-namespace enumgen::helpers
+namespace enumgen::tests
 {
 
     ArgsHelper::ArgsHelper(std::initializer_list<std::string_view> strings) noexcept
@@ -24,4 +24,4 @@ namespace enumgen::helpers
         return ArgsHelper(std::move(strings));
     }
 
-}  // namespace enumgen::helpers
+}  // namespace enumgen::tests

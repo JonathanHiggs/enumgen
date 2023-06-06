@@ -1,7 +1,7 @@
-#include <enumgen/utils/ArgParser.hpp>
+#include <enumgen/utils/Parser.hpp>
 
 
-namespace enumgen::utils
+namespace enumgen
 {
     namespace
     {
@@ -238,4 +238,4 @@ namespace enumgen::utils
         return equalsPos != std::string_view::npos ? parseCombinedOption(input) : parseSeparatedOption(input);
     }
 
-}  // namespace enumgen::utils
+}  // namespace enumgen

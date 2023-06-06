@@ -4,9 +4,6 @@
 #include <tuple>
 
 
-using namespace enumgen::utils;
-
-
 namespace enumgen::generate
 {
     namespace

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <enumgen/utils/ArgParser.hpp>
 #include <enumgen/utils/Commands.hpp>
+#include <enumgen/utils/Parser.hpp>
 
 #include <optional>
 #include <string_view>
@@ -23,13 +23,13 @@ namespace enumgen::generate
         std::string_view binaryDirectory;
         std::string_view sourceDirectory;
 
-        static constexpr auto parameters = utils::parametersFor<GenerateCommand>(
-            utils::Parameter<&GenerateCommand::specifications>("-i", "--input", "./enumgen/enums.json"),
-            utils::Parameter<&GenerateCommand::config>("-c", "--config", "./enumgen/config.json"),
-            utils::Parameter<&GenerateCommand::binaryDirectory>("-b", "--binaryDir"),
-            utils::Parameter<&GenerateCommand::sourceDirectory>("-s", "--sourceDir"));
+        static constexpr auto parameters = parametersFor<GenerateCommand>(
+            Parameter<&GenerateCommand::specifications>("-i", "--input", "./enumgen/enums.json"),
+            Parameter<&GenerateCommand::config>("-c", "--config", "./enumgen/config.json"),
+            Parameter<&GenerateCommand::binaryDirectory>("-b", "--binaryDir"),
+            Parameter<&GenerateCommand::sourceDirectory>("-s", "--sourceDir"));
     };
 
-    utils::Result<GenerateCommand> parseGenerateCommand(utils::Tokens const & tokens) noexcept;
+    Result<GenerateCommand> parseGenerateCommand(Tokens const & tokens) noexcept;
 
 }  // namespace enumgen::generate

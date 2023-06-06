@@ -10,7 +10,7 @@
 using namespace std::string_view_literals;
 
 
-namespace enumgen::utils
+namespace enumgen
 {
 
     using token_type = std::string_view;
@@ -219,4 +219,4 @@ namespace enumgen::utils
     Result<Option> parseOption(Tokens const & input) noexcept;
 
 
-}  // namespace enumgen::utils
+}  // namespace enumgen

@@ -1,12 +1,11 @@
 #include <enumgen/generate/GenerateCommand.hpp>
-#include <enumgen/helpers/CommandLineHelpers.hpp>
-#include <enumgen/utils/ArgParser.hpp>
+#include <enumgen/tests/CommandLineHelpers.hpp>
+#include <enumgen/utils/Parser.hpp>
 
 #include <gtest/gtest.h>
 
 
-using namespace enumgen::helpers;
-using namespace enumgen::utils;
+using namespace enumgen::tests;
 
 
 namespace enumgen::generate::tests
@@ -78,7 +77,7 @@ namespace enumgen::generate::tests
         auto tokens = Tokens(0, std::span{ preprocessed });
 
         // Act
-        const auto result = utils::parseCommand<GenerateCommand>(tokens.skip(2));
+        const auto result = parseCommand<GenerateCommand>(tokens.skip(2));
 
         // Assert
         ASSERT_TRUE(result);
@@ -98,7 +97,7 @@ namespace enumgen::generate::tests
         auto tokens = Tokens(0, std::span{ preprocessed });
 
         // Act
-        const auto result = utils::parseCommand<GenerateCommand>(tokens.skip(2));
+        const auto result = parseCommand<GenerateCommand>(tokens.skip(2));
 
         // Assert
         ASSERT_TRUE(result);
