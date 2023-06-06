@@ -24,7 +24,7 @@ namespace enumgen::utils
         {
             if constexpr (Index < sizeof...(Tp))
             {
-                func(std::get<Index>(tuple));
+                func(std::get<Index>(tuple));  // ToDo: handle throwing functions
                 forEach<Index + 1>(tuple, std::forward<Func>(func));
             }
         }
@@ -38,7 +38,7 @@ namespace enumgen::utils
         {
             if constexpr (Index < sizeof...(Tp))
             {
-                auto result = func(std::get<Index>(tuple));
+                auto result = func(std::get<Index>(tuple));  // ToDo: handle throwing functions
                 if (condition(result))
                 {
                     return true;
@@ -55,22 +55,52 @@ namespace enumgen::utils
     }  // namespace detail
 
 
+    // Maybe: handle value conversions
+    // template <typename ValueType>
+    // struct ConvertValue;
+    //
+    // template <>
+    // struct ConvertValue<std::string_view>
+    // {
+    //     using value_type = std::string_view;
+    //
+    //     static constexpr value_type convert(std::string_view value) noexcept
+    //     {
+    //         return value;
+    //     }
+    // };
+    //
+    // template <>
+    // struct ConvertValue<bool>
+    // {
+    //     using value_type = bool;
+    //
+    //     static constexpr value_type convert(std::string_view value) noexcept
+    //     {
+    //         // ToDo:
+    //         return true;
+    //     }
+    // };
+
+
     /// <summary>
     /// Contains details needed to parse a command line argument matching a parameter into a command instance
     /// </summary>
-    /// <typeparam name="MemberValue"></typeparam>
     template <auto MemberValue>
         requires utils::member_value<MemberValue>
     struct Parameter final
     {
+        // ToDo: bool required = std::is_optional<member_value_type> or std::function<bool(member_value_type)>
+        // ToDo: validation
+        // ToDo: handle flags (std::same_as<member_value_type, bool>)
+        // Maybe: track values set?
+
         using command_type = utils::member_value_class_t<MemberValue>;
         using member_value_type = utils::member_value_t<MemberValue>;
 
         std::string_view shortName;
         std::string_view longName;
         std::optional<member_value_type> defaultValue;
-        // ToDo: bool required = std::is_optional<member_value_type> or std::function<bool(member_value_type)>
-        // validate Maybe: track values set?
 
         constexpr Parameter(std::string_view shortName, std::string_view longName) noexcept
           : shortName(shortName), longName(longName), defaultValue(std::nullopt)
@@ -80,6 +110,8 @@ namespace enumgen::utils
             std::string_view shortName, std::string_view longName, member_value_type defaultValue) noexcept
           : shortName(shortName), longName(longName), defaultValue(defaultValue)
         { }
+
+        // Maybe: [[nodiscard]] constexpr bool isFlag() const noexcept { return std::same_as<member_value_type, bool>; }
 
         /// <summary>
         /// Checks if the given field matches the short or long name of the parameter
@@ -110,33 +142,36 @@ namespace enumgen::utils
     };
 
 
+    // Maybe: parameter builder class to give a nicer interface
+
+
     /// <summary>
     /// Matches when the given type is an parameter for the command
     /// </summary>
     template <typename Type, typename Command>
-    concept ParameterFor = std::same_as<typename Type::command_type, Command>;
+    concept parameter_for = std::same_as<typename Type::command_type, Command>;
 
 
     /// <summary>
     /// Collection of parameters used to parse command line arguments into a command instance
     /// </summary>
-    template <typename Command, ParameterFor<Command>... Args>
-    struct Parameters final
+    template <typename Command, parameter_for<Command>... Args>
+    struct ParameterSet final
     {
-        using command_t = Command;
+        using command_type = Command;
 
         std::tuple<Args...> arguments;
 
-        constexpr Parameters(Args &&... args) noexcept : arguments(std::forward<Args>(args)...)
+        constexpr ParameterSet(Args &&... args) noexcept : arguments(std::forward<Args>(args)...)
         { }
 
         /// <summary>
         /// Sets default values for all parameters
         /// </summary>
         /// <param name="command"></param>
-        void setDefaults(command_t & command) const noexcept
+        void setDefaults(command_type & command) const noexcept
         {
-            auto setDefault = [&](auto const & argument) {
+            auto setDefault = [&](auto const & argument) noexcept {
                 argument.setDefault(command);
             };
 
@@ -147,9 +182,9 @@ namespace enumgen::utils
         /// Attempts to set the value of the parameter matching the given name
         /// </summary>
         [[nodiscard]] std::optional<std::string_view> trySetOption(
-            command_t & command, std::string_view name, std::string_view value) const noexcept
+            command_type & command, std::string_view name, std::string_view value) const noexcept
         {
-            auto trySetValue = [&](auto const & argument) -> bool {
+            auto trySetValue = [&](auto const & argument) noexcept -> bool {
                 if (!argument.matchesName(name))
                 {
                     return false;
@@ -159,7 +194,7 @@ namespace enumgen::utils
                 return true;
             };
 
-            auto stopCondition = [](bool valueSet) -> bool {
+            auto stopCondition = [](bool valueSet) noexcept -> bool {
                 return valueSet;
             };
 
@@ -176,7 +211,7 @@ namespace enumgen::utils
         /// Attempts to set the value of the parameter matching the given option
         /// </summary>
         [[nodiscard]] std::optional<std::string_view> trySetOption(
-            command_t & command, Option const & option) const noexcept
+            command_type & command, Option const & option) const noexcept
         {
             return this->trySetOption(command, option.flag.token, option.value.value);
         }
@@ -184,21 +219,88 @@ namespace enumgen::utils
 
 
     /// <summary>
-    /// Base type for parameters with a bu
+    /// Create a parameter set for the given command
     /// </summary>
-    template <typename Command>
-    struct Parameters<Command>
+    template <typename Command, parameter_for<Command>... Args>
+    [[nodiscard]] static constexpr ParameterSet<Command, Args...> parametersFor(Args &&... args) noexcept
     {
-        using command_t = Command;
+        return ParameterSet<Command, Args...>(std::forward<Args>(args)...);
+    }
 
-        /// <summary>
-        /// Helper function to create an collection of command parameters
-        /// </summary>
-        template <ParameterFor<command_t>... Args>
-        static constexpr Parameters<command_t, Args...> Add(Args &&... args)
+
+    /// <summary>
+    /// Matches when the given type is a parameter set for the command
+    /// </summary>
+    // ToDo: make this stronger?
+    template <typename Type, typename Command>
+    concept parameter_set_for = std::same_as<typename Type::command_type, Command>;
+
+
+    // clang-format off
+    /// <summary>
+    /// Matches types that are commands
+    /// </summary>
+    template <typename Type>
+    concept is_command =
+        std::default_initializable<Type>
+        && std::move_constructible<Type>
+        && parameter_set_for<decltype(Type::parameters), Type>;
+    // clang-format on
+
+
+    /// <summary>
+    /// Parses a command instance from command line arguments
+    /// </summary>
+    template <is_command Type>
+    Result<Type> parseCommand(Tokens const & tokens) noexcept
+    {
+        using command_type = Type;
+        constexpr auto parameters = command_type::parameters;
+
+        auto command = command_type{};
+        parameters.setDefaults(command);
+
+        auto remainder = tokens;
+
+        while (remainder.any())
         {
-            return Parameters<command_t, Args...>(std::forward<Args>(args)...);
+            auto optionResult = parseOption(remainder);
+            if (optionResult)
+            {
+                auto setOptionError = parameters.trySetOption(command, *optionResult);
+                if (setOptionError)
+                {
+                    return ParseError(remainder, *setOptionError);
+                }
+
+                remainder = optionResult.remainder();
+                continue;
+            }
+
+            // ToDo: flags
+            // auto flagResult = parseFlag(remainder);
+            // if (flagResult)
+            // {
+            //     auto setFlagError = parameters.trySetFlag(command, *flagResult);
+            //     if (setFlagError)
+            //     {
+            //         return ParseError(remainder, *setFlagError);
+            //     }
+            //
+            //     remainder = flagResult.remainder();
+            //     continue;
+            // }
+
+            return ParseError(remainder, "Unknown option or flag");
         }
-    };
+
+        // ToDo: validation
+        // if (auto validateError = parameters.validate(command); validateError)
+        // {
+        //     return ParseError(tokens, *validateError);
+        // }
+
+        return Output<command_type>(std::move(command), remainder);
+    }
 
 }  // namespace enumgen::utils

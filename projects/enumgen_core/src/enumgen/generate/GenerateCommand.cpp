@@ -50,10 +50,10 @@ namespace enumgen::generate
     Result<GenerateCommand> parseGenerateCommand(Tokens const & tokens) noexcept
     {
         // ToDo: extend commands with templated parsing
-        using command_t = GenerateCommand;
-        constexpr auto parameters = command_t::parameters;
+        using command_type = GenerateCommand;
+        constexpr auto parameters = command_type::parameters;
 
-        auto command = command_t{};
+        auto command = command_type{};
         parameters.setDefaults(command);
 
         auto remainder = tokens;

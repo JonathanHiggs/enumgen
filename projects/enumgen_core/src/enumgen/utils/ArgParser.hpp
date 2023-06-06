@@ -15,8 +15,16 @@ namespace enumgen::utils
 
     using token_type = std::string_view;
 
+
+    /// <summary>
+    /// Converts command line argc & argc into a vector of tokens
+    /// </summary>
     std::vector<token_type> preprocess(int argc, char ** argv) noexcept;
 
+
+    /// <summary>
+    /// Collection of tokens with helpers for parsing
+    /// </summary>
     struct Tokens final
     {
         int index;
@@ -32,6 +40,10 @@ namespace enumgen::utils
         [[nodiscard]] Tokens skip(int count = 1) const noexcept;
     };
 
+
+    /// <summary>
+    /// Represents an error that occurred while parsing
+    /// </summary>
     struct ParseError final
     {
         Tokens input;
@@ -40,6 +52,10 @@ namespace enumgen::utils
         ParseError(Tokens input, std::string_view error) noexcept;
     };
 
+
+    /// <summary>
+    /// Represents a successful parse result
+    /// </summary>
     template <typename Value>
     struct Output final
     {
@@ -48,10 +64,14 @@ namespace enumgen::utils
         value_type value;
         Tokens remainder;
 
-        explicit Output(value_type value, Tokens remainder) noexcept : value(value), remainder(remainder)
+        explicit Output(value_type value, Tokens remainder) noexcept : value(std::move(value)), remainder(remainder)
         { }
     };
 
+
+    /// <summary>
+    /// Parse result that can be either a successful parse value or an error
+    /// </summary>
     template <typename Value>
     class Result final
     {
@@ -133,7 +153,7 @@ namespace enumgen::utils
 
         [[nodiscard]] friend bool operator!=(Verb const & lhs, std::string_view rhs) noexcept
         {
-            return !(lhs == rhs);
+            return !(lhs.value == rhs);
         }
     };
 
@@ -152,9 +172,10 @@ namespace enumgen::utils
 
         [[nodiscard]] friend bool operator!=(Flag const & lhs, std::string_view rhs) noexcept
         {
-            return !(lhs == rhs);
+            return !(lhs.token == rhs);
         }
     };
+
 
     struct Value final
     {
@@ -163,6 +184,7 @@ namespace enumgen::utils
 
         explicit Value(std::string_view token, std::string_view value) noexcept;
     };
+
 
     struct Option
     {
@@ -173,12 +195,27 @@ namespace enumgen::utils
     };
 
 
+    /// <summary>
+    /// Parses a verb from the input
+    /// </summary>
     Result<Verb> parseVerb(Tokens const & input) noexcept;
 
+
+    /// <summary>
+    /// Parses a flag from the input
+    /// </summary>
     Result<Flag> parseFlag(Tokens const & input) noexcept;
 
+
+    /// <summary>
+    /// Parses a value from the input
+    /// </summary>
     Result<Value> parseValue(Tokens const & input) noexcept;
 
+
+    /// <summary>
+    /// Parses an option from the input
+    /// </summary>
     Result<Option> parseOption(Tokens const & input) noexcept;
 
 
