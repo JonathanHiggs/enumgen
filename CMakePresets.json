@@ -109,16 +109,16 @@
       "generator": "Visual Studio 17 2022"
     },
     {
-      "name": "gcc.debug.ninja",
-      "inherits": [ "base", "config", "gcc", "debug", "ninja" ]
+      "name": "gcc.debug.make",
+      "inherits": [ "base", "config", "gcc", "debug", "make" ]
     },
     {
-      "name": "gcc.pdb.ninja",
-      "inherits": [ "base", "config", "gcc", "pdb", "ninja" ]
+      "name": "gcc.pdb.make",
+      "inherits": [ "base", "config", "gcc", "pdb", "make" ]
     },
     {
-      "name": "gcc.release.ninja",
-      "inherits": [ "base", "config", "gcc", "release", "ninja" ]
+      "name": "gcc.release.make",
+      "inherits": [ "base", "config", "gcc", "release", "make" ]
     },
     {
       "name": "msvc.debug.ninja",

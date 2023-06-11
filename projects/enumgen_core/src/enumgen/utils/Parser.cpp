@@ -1,5 +1,7 @@
 #include <enumgen/utils/Parser.hpp>
 
+#include <cstring>
+
 
 namespace enumgen
 {
